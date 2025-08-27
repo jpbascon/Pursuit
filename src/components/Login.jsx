@@ -17,7 +17,7 @@ const Login = () => {
           src="/landingBg.jpg"
           alt="Background"
           className="absolute inset-0 w-full h-full object-cover brightness-35 pointer-events-none" />
-        <div className={`gap-[3rem] flex flex-col items-start justify-center relative z-10 transition-opacity duration-500
+        <div className={`gap-[5rem] flex flex-col items-start justify-center relative z-10 transition-opacity duration-500
           ${visible ? "opacity-100" : "opacity-0"}`}>
           <div className="w-full">
             <h1 className="text-start text-8xl font-bold bg-white outlined-text size-fit italic">Welcome back</h1>
@@ -41,21 +41,21 @@ const Login = () => {
                 className="border-1 border-white resize-none transition-all px-2 py-3 rounded-xs outline-none"
                 name="password"
               />
-            </div>
-            <div className="gap-1 mt-[2rem] justify-end flex flex-col items-stretch">
               <div className="flex justify-between">
+                <p>Forgot your password?&nbsp; <button
+                  className="underline">
+                  Reset password
+                </button></p>
                 <p>Don't have an account?&nbsp; <button
                   type="button"
                   className="underline"
                   onClick={() => { navigate('/signup'); }}>
                   Sign up
                 </button></p>
-                <p>Forgot your password?&nbsp; <button
-                  className="underline">
-                  Reset password
-                </button></p>
               </div>
-              <button className="flex-1 min-w-50 my-auto text-black text-center text-lg px-[2rem] py-[1.3rem] rounded-xs bg-white hover:brightness-80 transition-all cursor-pointer">
+            </div>
+            <div className="gap-1 mt-[2rem] flex flex-col">
+              <button className="my-auto border-1 border-white text-white text-lg px-[2rem] py-[1.3rem] rounded-xs hover:bg-white hover:text-black transition-all cursor-pointer">
                 Login
               </button>
             </div>

@@ -64,9 +64,9 @@ const LandingPage = () => {
             </h1>
           </div >
           <div className="flex justify-start gap-5">
-            <NavLink to="/about" className={`flex-1 min-w-50 my-auto text-white text-center text-lg px-[2rem] py-[1.3rem] rounded-xs whitespace-nowrap border-2 border-white hover:bg-white hover:text-black
+            <NavLink to="/about" className={`flex-1 min-w-50 my-auto text-white text-center text-lg px-[2rem] py-[1.3rem] rounded-xs whitespace-nowrap border-1 border-white hover:bg-white hover:text-black
             ${showButton1 ? "opacity-100 lp-buttons" : "opacity-0"}`}>Learn more</NavLink>
-            <NavLink to="/signup" className={`flex-1 min-w-50 my-auto text-white text-center text-lg px-[2rem] py-[1.3rem] rounded-xs border-2 border-white hover:bg-white hover:text-black
+            <NavLink to="/signup" className={`flex-1 min-w-50 my-auto text-white text-center text-lg px-[2rem] py-[1.3rem] rounded-xs border-1 border-white hover:bg-white hover:text-black
             ${showButton2 ? "opacity-100 lp-buttons" : "opacity-0"}`}>Join Us</NavLink>
           </div>
         </div>
