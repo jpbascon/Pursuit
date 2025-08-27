@@ -71,7 +71,7 @@ button {
 
 .lp-buttons {
   font-family: 'Roboto', sans-serif;
-  transition: opacity .8s ease-in-out, border .1s ease-in-out, color .1s ease-in-out, background-color .1s ease-in-out;
+  transition: opacity .8s ease-in-out, background-color .1s ease-in-out;
   animation: lp-buttons .8s ease forwards;
 }
 
@@ -82,11 +82,24 @@ button {
 
   50% {
     transform: translateY(-6px);
-    /* overshoot upwards */
   }
 
   100% {
     transform: translateY(0);
-    /* bounce back down slightly */
+  }
+}
+
+.developer {
+  transition: opacity .8s ease-in-out, background-color .1s ease-in-out;
+  animation: developer .8s ease forwards;
+}
+
+@keyframes developer {
+  from {
+    transform: translateY(30px);
+  }
+
+  to {
+    transform: translateY(0);
   }
 }

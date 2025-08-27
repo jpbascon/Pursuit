@@ -3,6 +3,7 @@ import About from './components/About';
 import Footer from './components/Footer';
 import Signup from './components/Signup';
 import Login from './components/Login';
+import Contact from './components/Contact';
 import LandingPage from './components/LandingPage';
 import { Routes, Route } from "react-router-dom";
 import { useEffect, useState } from 'react';
@@ -16,10 +17,9 @@ function App() {
           <Routes>
             <Route path="/" element={<LandingPage />}></Route>
             <Route path="/about" element={<About />}></Route>
-            <Route path="/login" element={<Login
-            />}></Route>
-            <Route path="/signup" element={<Signup
-            />}></Route>
+            <Route path="/login" element={<Login />}></Route>
+            <Route path="/signup" element={<Signup />}></Route>
+            <Route path="/contact" element={<Contact />}></Route>
           </Routes>
         </main >
         <Footer />
