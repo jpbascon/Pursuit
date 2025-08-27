@@ -29,7 +29,7 @@ const Contact = () => {
                   Email
                 </label>
                 <input
-                  className="border-1 border-white resize-none transition-all px-2 py-3 rounded-xs outline-none"
+                  className="border-1 border-[#e8e6e3] resize-none transition-all px-2 py-3 rounded-xs outline-none"
                   name="email" />
               </div>
               <div className="flex flex-col">
@@ -38,7 +38,7 @@ const Contact = () => {
                 </label>
                 <input
                   type="Subject"
-                  className="border-1 border-white resize-none transition-all px-2 py-3 rounded-xs outline-none"
+                  className="border-1 border-[#e8e6e3] resize-none transition-all px-2 py-3 rounded-xs outline-none"
                   name="Subject" />
               </div>
               <div className="flex flex-col">
@@ -47,11 +47,11 @@ const Contact = () => {
                 </label>
                 <textarea
                   type="message"
-                  className="border-1 border-white resize-none transition-all px-2 py-3 rounded-xs outline-none"
+                  className="border-1 border-[#e8e6e3] resize-none transition-all px-2 py-3 rounded-xs outline-none"
                   name="message" />
               </div>
               <div className="gap-1 mt-[2rem] flex flex-col">
-                <button className="my-auto border-1 border-white text-white text-lg px-[2rem] py-[1.3rem] rounded-xs hover:bg-white hover:text-black transition-all cursor-pointer">
+                <button className="my-auto border-1 border-[#e8e6e3] text-lg px-[2rem] py-[1.3rem] rounded-xs hover:bg-[#e8e6e3] hover:text-black transition-all cursor-pointer">
                   Submit
                 </button>
               </div>

@@ -2,17 +2,17 @@
 @import "tailwindcss";
 
 body {
-  color: white;
+  color: #e8e6e3;
   font-family: 'system-ui, -apple-system', sans-serif;
 }
 
 .outlined-text {
-  color: white;
+  color: #e8e6e3;
   -webkit-text-stroke: 2px black;
 }
 
 .outlined-thin-text {
-  color: white;
+  color: #e8e6e3;
   -webkit-text-stroke: .4px black;
 }
 
@@ -101,5 +101,19 @@ button {
 
   to {
     transform: translateY(0);
+  }
+}
+
+.img {
+  animation: img .9s ease forwards;
+}
+
+@keyframes img {
+  from {
+    transform: translateX(30px);
+  }
+
+  to {
+    transform: translateX(0);
   }
 }

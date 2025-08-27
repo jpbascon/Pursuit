@@ -28,7 +28,7 @@ const Signup = () => {
                 Email
               </label>
               <input
-                className="border-1 border-white resize-none transition-all px-2 py-3 rounded-xs outline-none"
+                className="border-1 border-[#e8e6e3] resize-none transition-all px-2 py-3 rounded-xs outline-none"
                 name="email"
               />
             </div>
@@ -38,7 +38,7 @@ const Signup = () => {
               </label>
               <input
                 type="password"
-                className="border-1 border-white resize-none transition-all px-2 py-3 rounded-xs outline-none"
+                className="border-1 border-[#e8e6e3] resize-none transition-all px-2 py-3 rounded-xs outline-none"
                 name="password"
               />
             </div>
@@ -48,20 +48,20 @@ const Signup = () => {
               </label>
               <input
                 type="password"
-                className="border-1 border-white resize-none transition-all px-2 py-3 rounded-xs outline-none"
+                className="border-1 border-[#e8e6e3] resize-none transition-all px-2 py-3 rounded-xs outline-none"
                 name="confirmPassword"
               />
               <div className="text-end">Already have an account?&nbsp;
                 <button
                   type="button"
-                  className="underline"
+                  className="underline italic"
                   onClick={() => { navigate('/login'); }}>
                   Log in
                 </button>
               </div>
             </div>
             <div className="mt-[2rem] flex flex-col">
-              <button className="my-auto border-1 border-white text-white text-lg px-[2rem] py-[1.3rem] rounded-xs hover:bg-white hover:text-black transition-all cursor-pointer">
+              <button className="my-auto border-1 border-[#e8e6e3] text-lg px-[2rem] py-[1.3rem] rounded-xs hover:bg-[e8e6e3] hover:text-black transition-all cursor-pointer">
                 Create Account
               </button>
             </div>
