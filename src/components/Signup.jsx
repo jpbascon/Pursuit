@@ -2,6 +2,9 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 const Signup = () => {
+  const [email, setEmail] = useState();
+  const [password, setPassword] = useState();
+  const [confirmPassword, setConfirmPassword] = useState();
   const [visible, setVisible] = useState(false);
   const navigate = useNavigate();
   useEffect(() => {
@@ -30,7 +33,7 @@ const Signup = () => {
               <input
                 className="border-1 border-[#e8e6e3] resize-none transition-all px-2 py-3 rounded-xs outline-none"
                 name="email"
-              />
+                onChange={(e) => { setEmail(e.target.value) }} />
             </div>
             <div className="flex flex-col">
               <label to="password">
@@ -40,7 +43,7 @@ const Signup = () => {
                 type="password"
                 className="border-1 border-[#e8e6e3] resize-none transition-all px-2 py-3 rounded-xs outline-none"
                 name="password"
-              />
+                onChange={(e) => { setPassword(e.target.value) }} />
             </div>
             <div className="flex flex-col">
               <label to="confirmPassword">
@@ -50,7 +53,7 @@ const Signup = () => {
                 type="password"
                 className="border-1 border-[#e8e6e3] resize-none transition-all px-2 py-3 rounded-xs outline-none"
                 name="confirmPassword"
-              />
+                onChange={(e) => { setConfirmPassword(e.target.value) }} />
               <div className="text-end">Already have an account?&nbsp;
                 <button
                   type="button"
@@ -61,7 +64,7 @@ const Signup = () => {
               </div>
             </div>
             <div className="mt-[2rem] flex flex-col">
-              <button className="my-auto border-1 border-[#e8e6e3] text-lg px-[2rem] py-[1.3rem] rounded-xs hover:bg-[e8e6e3] hover:text-black transition-all cursor-pointer">
+              <button type="submit" className="my-auto border-1 border-[#e8e6e3] text-lg px-[2rem] py-[1.3rem] rounded-xs hover:bg-[e8e6e3] hover:text-black transition-all cursor-pointer">
                 Create Account
               </button>
             </div>

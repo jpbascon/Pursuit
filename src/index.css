@@ -23,7 +23,8 @@ body {
 
 .right-nav,
 button,
-p {
+p,
+a {
   font-family: 'Roboto', sans-serif;
 }
 

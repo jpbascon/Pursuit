@@ -46,9 +46,9 @@ const About = () => {
           className="absolute inset-0 w-full h-full object-cover brightness-35 pointer-events-none" />
         <div className="relative flex max-w-7xl mx-auto z-10">
           <div className="gap-14 flex flex-col w-full">
-            <h1 className={`text-8xl font-bold size-fit italic whitespace-pre-line transition duration-800 ${firstHeader ? "opacity-100 developer" : "opacity-0"}`}>Meet the <span className={`transition duration-800 ${developer ? "opacity-100" : "opacity-0"}`}>developer</span></h1>
+            <h1 className={`text-8xl font-bold italic font-heading transition duration-800 ${firstHeader ? "opacity-100 developer" : "opacity-0"}`}>Meet the <span className={`bg-white outlined-text inline-block transition duration-800 ${developer ? "opacity-100" : "opacity-0"}`}>developer</span></h1>
             <p className={`text-xl text-justify transition duration-800 ${paragraph ? "opacity-100 developer" : "opacity-0"}`}>Hey, I'm Jason. A web developer based in Philippines. I enjoy creating meaningful projects such as <span className="italic">Pursuit.</span>
-              &nbsp;From an early age, I discovered my passion for <strong>bringing imagination to life and shaping it into reality</strong>. &nbsp;Now that I’ve grown, Web Development has become my instrument through which I express my creativity and ambition.</p>
+              &nbsp;From an early age, I discovered my passeion for <strong>bringing imagination to life and shaping it into reality</strong>. Now that I’ve grown, Web Development has become my instrument through which I express my creativity and ambition.</p>
             <div className="flex justify-start">
               <NavLink to="/signup" className={`mt-[2rem] min-w-50 my-auto text-center text-lg px-[2rem] py-[1.3rem] rounded-xs border-2 border-[#e8e6e3] hover:bg-[#e8e6e3] hover:text-black transition duration-800
             ${joinButton ? "opacity-100 developer" : "opacity-0"}`}>Join Us</NavLink>

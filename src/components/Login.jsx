@@ -58,7 +58,7 @@ const Login = () => {
               </div>
             </div>
             <div className="gap-1 mt-[2rem] flex flex-col">
-              <button className="my-auto border-1 border-[#e8e6e3] text-lg px-[2rem] py-[1.3rem] rounded-xs hover:bg-[#e8e6e3] hover:text-black transition-all cursor-pointer">
+              <button type="submit" className="my-auto border-1 border-[#e8e6e3] text-lg px-[2rem] py-[1.3rem] rounded-xs hover:bg-[#e8e6e3] hover:text-black transition-all cursor-pointer">
                 Login
               </button>
             </div>
