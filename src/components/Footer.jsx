@@ -13,8 +13,8 @@ const Footer = () => {
           <div className="flex justify-between w-full">
             <p className="text-xl italic">where brave minds connect</p>
             <div className="flex flex-col gap-4">
-              <p className="text-md font-light">Links</p>
-              <div className="flex flex-col gap-1 font-light text-lg">
+              <p className="text-xl font-light">Links</p>
+              <div className="flex flex-col gap-1 font-light text-md">
                 <NavLink to="/about">
                   About us
                 </NavLink>
@@ -24,7 +24,7 @@ const Footer = () => {
               </div>
             </div>
             <div className="flex flex-col gap-4">
-              <p className="text-md font-light">Follow us</p>
+              <p className="text-xl font-light">Follow us</p>
               <div className="flex gap-6">
                 <a className="border-1 p-2 border-[#e8e6e3] rounded-[50%]" href="https://facebook.com/a.jxson" target="_blank">
                   <svg xmlns="http://www.w3.org/2000/svg" xlink="http://www.w3.org/1999/xlink" version="1.1" id="Capa_1" x="0px" y="0px" viewBox="0 0 24 24" xmlSpace="preserve" width="22" height="22" fill="#fff">
@@ -59,8 +59,8 @@ const Footer = () => {
               </div>
             </div>
             <div className="flex flex-col gap-4">
-              <p className="text-md font-light">Contact us</p>
-              <p className="text-2xl font-light">+63 9760566673</p>
+              <p className="text-xl font-light">Contact us</p>
+              <p className="text-lg font-light">+63 9760566673</p>
             </div>
           </div>
         </div>
