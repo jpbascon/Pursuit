@@ -16,7 +16,7 @@ const Footer = () => {
               <p className="text-xl font-light">Links</p>
               <div className="flex flex-col gap-1 font-light text-md">
                 <NavLink to="/about">
-                  About us
+                  About
                 </NavLink>
                 <NavLink to="/contact">
                   Contact
