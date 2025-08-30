@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
 const Signup = () => {
+  const [name, setName] = useState();
   const [email, setEmail] = useState();
   const [password, setPassword] = useState();
   const [confirmPassword, setConfirmPassword] = useState();
@@ -26,6 +27,15 @@ const Signup = () => {
             <h1 className="text-start text-8xl font-bold bg-white outlined-text size-fit italic">Create your account</h1>
           </div>
           <form className="flex flex-col gap-[1rem] w-[50%]">
+            <div className="flex flex-col">
+              <label to="name">
+                Name
+              </label>
+              <input
+                className="border-1 border-[#e8e6e3] resize-none transition-all px-2 py-3 rounded-xs outline-none"
+                name="name"
+                onChange={(e) => { setName(e.target.value) }} />
+            </div>
             <div className="flex flex-col">
               <label to="email">
                 Email
