@@ -16,7 +16,7 @@ const Signup = () => {
   }, [])
   return (
     <>
-      <div className="relative px-[10%] py-[10%] flex flex-col min-h-screen">
+      <div className="relative px-[10%] py-[7%] flex flex-col min-h-screen">
         <img
           src="/landingBg.jpg"
           alt="Background"
