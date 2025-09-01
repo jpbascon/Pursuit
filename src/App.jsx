@@ -9,7 +9,7 @@ import LandingPage from './pages/LandingPage';
 import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
-import { Analytics } from "@vercel/analytics/react"
+/* import { Analytics } from "@vercel/analytics/react" */
 import { Routes, Route } from "react-router-dom";
 
 function App() {
