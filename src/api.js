@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "https://pursuit-production.up.railway.app/",
+  baseURL: true,
   withCredentials: true
 })
 
