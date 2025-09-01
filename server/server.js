@@ -60,8 +60,7 @@ app.post("/signup", async (req, res) => {
 /* LOGIN */
 app.post("/login", async (req, res) => {
   try {
-    const email = Array.isArray(req.body.email) ? req.body.email[0] : req.body.email;
-    const password = Array.isArray(req.body.password) ? req.body.password[0] : req.body.password;
+    const { email, password } = req.body;
     if (!email || !password) return res.status(400).json({ error: "All fields are required" });
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ error: "Email does not exist" });
