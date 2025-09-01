@@ -13,7 +13,6 @@ dotenv.config();                                                      // Load en
 
 const JWT_SECRET = process.env.JWT_SECRET;
 const PORT = process.env.PORT || 5000;
-const NODE_ENV = process.env.NODE_ENV;
 const app = express();
 app.use(cookieParser());
 app.use(cors({

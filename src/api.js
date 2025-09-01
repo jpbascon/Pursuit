@@ -1,11 +1,7 @@
 import axios from "axios";
-import dotenv from "dotenv";
 
-dotenv.config();
-
-const RAILWAY = process.env.VITE.API.URL;
 const api = axios.create({
-  baseURL: RAILWAY,
+  baseURL: "https://pursuit-production.up.railway.app/",
   withCredentials: true
 })
 
