@@ -7,7 +7,7 @@ const Login = () => {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: [e.target.value] });
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
