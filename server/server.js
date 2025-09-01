@@ -89,7 +89,7 @@ app.get("/api", async (req, res) => {
     const users = await User.find();                                  // Fetch all users based on the User schema and returns a JavaScript object
     res.json(users);                                                  // Send them as JSON
   } catch (err) {
-    res.status(500), json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
 })
 
