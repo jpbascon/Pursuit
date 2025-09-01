@@ -1,9 +1,28 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { loginUser } from "../api.js";
 
 const Login = () => {
   const [visible, setVisible] = useState(false);
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: [e.target.value] });
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await loginUser(formData);
+      setMessage(res.data.message);
+      navigate('/dashboard');
+    } catch (err) {
+      if (err.response && err.response.data?.error) {
+        setMessage(err.response.data.error);   // Show backend error
+      } else {
+        setMessage(err);
+      }
+    }
+  }
+
   useEffect(() => {
     const timeout = setTimeout(() => {
       setVisible(true);
@@ -22,7 +41,7 @@ const Login = () => {
           <div className="w-full">
             <h1 className="text-start text-8xl font-bold bg-white outlined-text size-fit italic">Welcome back</h1>
           </div>
-          <form className="flex flex-col gap-[1rem] w-[50%]">
+          <form className="flex flex-col gap-[1rem] w-[50%]" onSubmit={handleSubmit}>
             <div className="flex flex-col">
               <label to="email">
                 Email
@@ -30,6 +49,7 @@ const Login = () => {
               <input
                 className="border-1 border-[#e8e6e3] resize-none transition-all px-2 py-3 rounded-xs outline-none"
                 name="email"
+                onChange={handleChange}
               />
             </div>
             <div className="flex flex-col">
@@ -40,6 +60,7 @@ const Login = () => {
                 type="password"
                 className="border-1 border-[#e8e6e3] resize-none transition-all px-2 py-3 rounded-xs outline-none"
                 name="password"
+                onChange={handleChange}
               />
               <div className="flex justify-between">
                 <p>Forgot your password?&nbsp; <button
@@ -61,6 +82,7 @@ const Login = () => {
               <button type="submit" className="my-auto border-1 border-[#e8e6e3] text-lg px-[2rem] py-[1.3rem] rounded-xs hover:bg-[#e8e6e3] hover:text-black transition-all cursor-pointer">
                 Login
               </button>
+              {message && <p className="text-white">{message}</p>}
             </div>
           </form>
         </div>
