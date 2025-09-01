@@ -149,8 +149,8 @@ app.delete("/api/:id", async (req, res) => {
 const startServer = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
-    console.log("Connected to MongoDB");
-    console.log(process.env.PORT);
+    console.log("Starting server...");
+    console.log("PORT:", PORT);
     app.listen(PORT, "0.0.0.0", () => {
       console.log(`Server running on port ${PORT}`);
     });
