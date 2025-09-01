@@ -20,7 +20,8 @@ app.use(cors({
     "http://localhost:5173",
     "https://pursuit-pi.vercel.app"
   ],
-  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
 }));
 app.use(express.json());                                              // Parse incoming requests with JSON bodies (req.body)
 app.use("/a", userRoutes);                                            // Sets the endpoint for authenticated routes
