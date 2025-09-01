@@ -3,7 +3,6 @@
     "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "npm start",
-    "workdir": "server"
+    "startCommand": "npm start"
   }
 }
