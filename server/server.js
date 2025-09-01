@@ -17,7 +17,10 @@ const NODE_ENV = process.env.NODE_ENV;
 const app = express();
 app.use(cookieParser());
 app.use(cors({
-  origin: "http://localhost:5173",
+  origin: [
+    "http://localhost:5173",
+    "https://pursuit-pi.vercel.app"
+  ],
   credentials: true,
 }));
 app.use(express.json());                                              // Parse incoming requests with JSON bodies (req.body)
@@ -70,8 +73,8 @@ app.post("/login", async (req, res) => {
     );
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV,
-      sameSite: "lax",
+      secure: true,
+      sameSite: "none",
     });
     res.json({ message: "Login successful" });
   } catch (err) {
