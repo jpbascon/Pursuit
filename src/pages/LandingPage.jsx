@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { track, Analytics } from "@vercel/analytics"
+import { track } from "@vercel/analytics"
 
 const LandingPage = () => {
   const [showHeader, setShowHeader] = useState(false);
@@ -74,7 +74,6 @@ const LandingPage = () => {
           </div>
         </div>
       </div >
-      <Analytics />
     </>
   )
 }
