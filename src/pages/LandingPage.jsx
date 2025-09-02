@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
 import { useEffect, useState } from 'react';
+import { track, Analytics } from "@vercel/analytics"
 
 const LandingPage = () => {
   const [showHeader, setShowHeader] = useState(false);
@@ -65,12 +66,15 @@ const LandingPage = () => {
           </div >
           <div className="flex justify-start gap-5">
             <NavLink to="/about" className={`flex-1 min-w-50 my-auto text-center text-lg px-[2rem] py-[1.3rem] rounded-xs whitespace-nowrap border-1 border-[#e8e6e3] hover:bg-[#e8e6e3] hover:text-[#111313]
-            ${showButton1 ? "opacity-100 lp-buttons" : "opacity-0"}`}>Learn more</NavLink>
+            ${showButton1 ? "opacity-100 lp-buttons" : "opacity-0"}`}
+              onClick={track('test_click')}>Learn more</NavLink>
             <NavLink to="/login" className={`flex-1 min-w-50 my-auto text-center text-lg px-[2rem] py-[1.3rem] rounded-xs border-1 border-[#e8e6e3] hover:bg-[#e8e6e3] hover:text-[#111313]
-            ${showButton2 ? "opacity-100 lp-buttons" : "opacity-0"}`}>Join Us</NavLink>
+            ${showButton2 ? "opacity-100 lp-buttons" : "opacity-0"}`}
+              onClick={track('test_click')}>Join Us</NavLink>
           </div>
         </div>
       </div >
+      <Analytics />
     </>
   )
 }
