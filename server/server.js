@@ -12,7 +12,7 @@ import cookieParser from "cookie-parser";
 dotenv.config();                                                      // Load environment variables from .env file into process.env
 
 const JWT_SECRET = process.env.JWT_SECRET;
-const PORT = process.env.PORT;
+const PORT = Number(process.env.PORT);
 const app = express();
 app.use(cookieParser());
 app.use(cors({
