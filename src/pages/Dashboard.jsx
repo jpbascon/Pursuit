@@ -3,7 +3,7 @@ import { logoutUser } from "../api";
 import { useNavigate } from "react-router-dom";
 
 export default function Dashboard() {
-  const API_URL = import.meta.env.MODE === "production" ? "http://localhost:5000/me" : "https://pursuit-production.up.railway.app/me";
+  const API_URL = import.meta.env.MODE === "development" ? "http://localhost:5000/me" : "https://pursuit-production.up.railway.app/me";
   const [message, setMessage] = useState("");
   let [name, setName] = useState("");
   const navigate = useNavigate();
