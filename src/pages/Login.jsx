@@ -16,7 +16,7 @@ const Login = () => {
       navigate('/dashboard');
     } catch (err) {
       if (err.response && err.response.data?.error) {
-        setMessage(err.response.data.error);   // Show backend error
+        setMessage(err.response.data.error); e
       } else {
         setMessage(err);
       }

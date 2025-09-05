@@ -13,7 +13,7 @@ router.get("/profile", async (req, res) => {
 })
 router.get("/dashboard", async (req, res) => {
   try {
-    res.json({ message: `Welcome to the dashboard, ${req.user.email}. You are authenticated` });
+    res.json({ message: `Welcome to the dashboard, ${req.user.name}. You are authenticated` });
   } catch (err) {
     res.status(500).json({ error: "Server error" });
   }

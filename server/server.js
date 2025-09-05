@@ -8,6 +8,7 @@ import validator from "validator";
 import jwt from "jsonwebtoken";
 import userRoutes from "./routes/userRoutes.js";
 import cookieParser from "cookie-parser";
+import { authMiddleware } from "./authMiddleware.js";
 
 dotenv.config();                                                      // Load environment variables from .env file into process.env
 
@@ -28,8 +29,6 @@ app.use("/a", userRoutes);                                            // Sets th
 app.get("/", (req, res) => {
   res.send("Backend is running...");
 });
-
-/* REGISTRATION */
 app.post("/signup", async (req, res) => {
   try {
     const name = validator.escape(req.body.name?.trim());
@@ -56,8 +55,6 @@ app.post("/signup", async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 })
-
-/* LOGIN */
 app.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -71,9 +68,9 @@ app.post("/login", async (req, res) => {
       JWT_SECRET,
     );
     res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      httpOnly: false,                       // false  || true
+      secure: true,                        // true || false
+      sameSite: "none",                      // none || lax
     });
     res.json({ message: "Login successful" });
   } catch (err) {
@@ -81,30 +78,16 @@ app.post("/login", async (req, res) => {
     res.status(500).json({ error: "Server error", details: err.message });
   }
 })
-
-/* API */
-app.get("/api", async (req, res) => {
+app.get("/me", authMiddleware, async (req, res) => {
   try {
-    const users = await User.find();                                  // Fetch all users based on the User schema and returns a JavaScript object
-    res.json(users);                                                  // Send them as JSON
+    const user = await User.findById(req.user.id).select("name email");
+    if (!user) return res.status(404).json({ error: "User not found" });
+    res.json({ id: user._id, name: user.name, email: user.email });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-})
-
-/* GET REQUEST */
-app.get("/api/:id", async (req, res) => {
-  try {
-    const findUser = await User.findById(req.params.id);
-    if (!findUser) return res.status(404).json({ error: "ID not found" });
-    res.json(findUser);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-})
-
-/* PUT REQUEST */
-app.put("/api/:id", async (req, res) => {
+});
+app.put("/me", async (req, res) => {
   try {
     const updates = {};
 
@@ -120,8 +103,6 @@ app.put("/api/:id", async (req, res) => {
       if (!password) return res.status(400).json({ error: "Invalid user password" });
       updates.password = hashedPassword;
     }
-
-    // Checks if updates properties is equal to 0
     if (Object.keys(updates).length === 0) return res.status(400).json({ error: "No valid fields provided" });
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
@@ -134,9 +115,7 @@ app.put("/api/:id", async (req, res) => {
     res.status(400).json({ error: err.message });
   }
 })
-
-/* DELETE REQUEST */
-app.delete("/api/:id", async (req, res) => {
+app.delete("/me", async (req, res) => {
   try {
     const deletedUser = await User.findByIdAndDelete(req.params.id);
     if (!deletedUser) return res.status(404).json({ error: "User not found" });
