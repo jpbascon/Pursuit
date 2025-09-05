@@ -68,8 +68,8 @@ app.post("/login", async (req, res) => {
       JWT_SECRET,
     );
     res.cookie("token", token, {
-      httpOnly: false,                       // false  || true
-      secure: true,                        // true || false
+      httpOnly: false,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "none",                      // none || lax
     });
     res.json({ message: "Login successful" });
