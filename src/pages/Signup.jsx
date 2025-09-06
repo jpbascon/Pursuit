@@ -1,9 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { registerUser } from "../api.js";
+import { useAlert } from '../context/Alert.jsx';
 
-const Signup = ({ setAlert, setAlertMessage }) => {
+const Signup = () => {
   const navigate = useNavigate();
+  const { alert, alertMessage, showAlert } = useAlert();
   const [visible, setVisible] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", password: "", passwordConfirm: "" });
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -11,15 +13,11 @@ const Signup = ({ setAlert, setAlertMessage }) => {
     e.preventDefault();
     try {
       const res = await registerUser(formData);
-      setAlert(true);
-      setTimeout(() => { setAlert(false) }, 3500)
-      setAlertMessage(res.data.message);
+      showAlert(res.data.message);
     } catch (err) {
-      setAlert(true);
-      setTimeout(() => { setAlert(false) }, 3500);
-      if (err.response) setAlertMessage(err.response.data.error);
-      else if (err.request) setAlertMessage("No response from server. Please try again.");
-      else setAlertMessage("An unexpected error occurred.");
+      if (err.response) showAlert(err.response.data.error);
+      else if (err.request) showAlert("No response from server. Please try again.");
+      else showAlert("An unexpected error occurred.");
     }
   }
   useEffect(() => {

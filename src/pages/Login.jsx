@@ -1,10 +1,12 @@
 import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { loginUser } from "../api.js";
+import { useAlert } from '../context/Alert.jsx';
 
 localStorage.getItem("isLoggedIn");
 
-const Login = ({ setAlert, setAlertMessage, isLoggedIn, setIsLoggedIn }) => {
+const Login = ({ setIsLoggedIn }) => {
+  const { showAlert } = useAlert();
   const [visible, setVisible] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "" });
   const navigate = useNavigate();
@@ -13,21 +15,15 @@ const Login = ({ setAlert, setAlertMessage, isLoggedIn, setIsLoggedIn }) => {
     e.preventDefault();
     try {
       const res = await loginUser(formData);
-      setAlert(true);
-      setTimeout(() => { setAlert(false) }, 3500)
-      setAlertMessage(res.data.message);
+      showAlert(res.data.message);
       setIsLoggedIn(true);
       localStorage.setItem("isLoggedIn", "true");
       navigate('/dashboard');
     } catch (err) {
       if (err.response && err.response.data?.error) {
-        setAlert(true);
-        setTimeout(() => { setAlert(false) }, 3500)
-        setAlertMessage(err.response.data.error);
+        showAlert(err.response.data.error);
       } else {
-        setAlert(true);
-        setTimeout(() => { setAlert(false) }, 3500)
-        setAlertMessage(err);
+        showAlert(err);
       }
     }
   }
@@ -39,7 +35,7 @@ const Login = ({ setAlert, setAlertMessage, isLoggedIn, setIsLoggedIn }) => {
   }, [])
   return (
     <>
-      <div className="px-[10%] py-[10%] flex flex-col min-h-screen">
+      <div className="px-[10%] py-[10%] min-h-screen">
         <div className={`gap-[5rem] flex flex-col items-start justify-center relative z-10 transition-opacity duration-500
           ${visible ? "opacity-100" : "opacity-0"}`}>
           <div className="w-full">

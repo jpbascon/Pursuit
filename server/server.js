@@ -9,6 +9,7 @@ import jwt from "jsonwebtoken";
 import userRoutes from "./routes/userRoutes.js";
 import cookieParser from "cookie-parser";
 import { authMiddleware } from "./authMiddleware.js";
+import nodemailer from "nodemailer";
 
 dotenv.config();                                                      // Load environment variables from .env file into process.env
 
@@ -57,7 +58,8 @@ app.post("/signup", async (req, res) => {
 })
 app.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = validator.normalizeEmail(req.body.email?.trim());
+    const password = validator.normalizeEmail(req.body.password?.trim());
     if (!email || !password) return res.status(400).json({ error: "All fields are required" });
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ error: "Email does not exist" });
@@ -76,6 +78,33 @@ app.post("/login", async (req, res) => {
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ error: "Server error", details: err.message });
+  }
+})
+app.post("/contact", async (req, res) => {
+  try {
+    const email = validator.normalizeEmail(req.body.email?.trim());
+    const subject = validator.escape(req.body.subject?.trim());
+    const message = validator.escape(req.body.message?.trim());
+    if (!email || !subject || !message) return res.status(400).json({ error: "All fields are required" });
+    if (!validator.isEmail(email)) return res.status(400).json({ error: "Invalid email address" });
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+    const mailOptions = {
+      from: process.env.EMAIL_USER,
+      to: process.env.EMAIL_USER,
+      replyTo: email,
+      subject: `New message from ${email}`,
+      text: `From: ${email}\nSubject: ${subject}\nMessage: \n\n${message}`
+    }
+    await transporter.sendMail(mailOptions);
+    res.json({ success: true, message: "Message sent successfully!" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Message fail to send" });
   }
 })
 app.get("/me", authMiddleware, async (req, res) => {

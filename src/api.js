@@ -10,4 +10,5 @@ export const loginUser = (userData) => api.post("/login", userData)
 export const getProfile = () => api.get("a/profile");
 export const getDashboard = () => api.get("a/dashboard");
 export const logoutUser = () => api.post("a/logout");
+export const contact = (formData) => api.post("/contact", formData);
 export default api;

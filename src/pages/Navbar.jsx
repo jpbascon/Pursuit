@@ -1,21 +1,19 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { logoutUser } from "../api";
+import { useAlert } from "../context/Alert.jsx";
 
-const Navbar = ({ setAlert, setAlertMessage, setIsLoggedIn, isLoggedIn }) => {
+const Navbar = ({ setIsLoggedIn, isLoggedIn }) => {
   const navigate = useNavigate();
+  const { showAlert } = useAlert();
   const logout = async () => {
     try {
       const res = await logoutUser();
-      setAlert(true);
-      setTimeout(() => { setAlert(false) }, 3500)
-      setAlertMessage(res.data.message);
+      showAlert(res.data.message);
       setIsLoggedIn(false);
       localStorage.setItem("isLoggedIn", "false");
       navigate("/");
     } catch (err) {
-      setAlert(true);
-      setTimeout(() => { setAlert(false) }, 3500)
-      setAlertMessage(err.response?.data?.error || "Logout failed");
+      showAlert(err.response?.data?.error || "Logout failed");
     }
   }
   return (
