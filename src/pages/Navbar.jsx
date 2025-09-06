@@ -6,8 +6,7 @@ const Navbar = ({ setAlert, setAlertMessage, setIsLoggedIn, isLoggedIn }) => {
   const logout = async () => {
     try {
       const res = await logoutUser();
-      console.log("hi")
-      console.log("hi1")
+      setAlert(true);
       setTimeout(() => { setAlert(false) }, 3500)
       setAlertMessage(res.data.message);
       setIsLoggedIn(false);
