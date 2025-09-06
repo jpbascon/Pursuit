@@ -12,11 +12,7 @@ const Contact = () => {
   }, [])
   return (
     <>
-      <div className="relative px-[10%] py-[10%] flex flex-col items-end min-h-screen">
-        <img
-          src="/landingBg.jpg"
-          alt="Background"
-          className="absolute inset-0 w-full h-full object-cover brightness-35 pointer-events-none" />
+      <div className="px-[10%] py-[10%] flex flex-col items-end min-h-screen">
         <div className={`gap-[5rem] flex flex-col items-start justify-center relative z-10 transition-opacity duration-500
           ${visible ? "opacity-100" : "opacity-0"}`}>
           <div className="w-full">

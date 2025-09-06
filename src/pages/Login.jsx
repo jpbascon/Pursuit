@@ -2,27 +2,35 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { loginUser } from "../api.js";
 
-const Login = () => {
+localStorage.getItem("isLoggedIn");
+
+const Login = ({ setAlert, setAlertMessage, isLoggedIn, setIsLoggedIn }) => {
   const [visible, setVisible] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "" });
-  const [message, setMessage] = useState("");
   const navigate = useNavigate();
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const res = await loginUser(formData);
-      setMessage(res.data.message);
+      setAlert(true);
+      setTimeout(() => { setAlert(false) }, 3500)
+      setAlertMessage(res.data.message);
+      setIsLoggedIn(true);
+      localStorage.setItem("isLoggedIn", "true");
       navigate('/dashboard');
     } catch (err) {
       if (err.response && err.response.data?.error) {
-        setMessage(err.response.data.error); e
+        setAlert(true);
+        setTimeout(() => { setAlert(false) }, 3500)
+        setAlertMessage(err.response.data.error);
       } else {
-        setMessage(err);
+        setAlert(true);
+        setTimeout(() => { setAlert(false) }, 3500)
+        setAlertMessage(err);
       }
     }
   }
-
   useEffect(() => {
     const timeout = setTimeout(() => {
       setVisible(true);
@@ -31,11 +39,7 @@ const Login = () => {
   }, [])
   return (
     <>
-      <div className="relative px-[10%] py-[10%] flex flex-col min-h-screen">
-        <img
-          src="/landingBg.jpg"
-          alt="Background"
-          className="absolute inset-0 w-full h-full object-cover brightness-35 pointer-events-none" />
+      <div className="px-[10%] py-[10%] flex flex-col min-h-screen">
         <div className={`gap-[5rem] flex flex-col items-start justify-center relative z-10 transition-opacity duration-500
           ${visible ? "opacity-100" : "opacity-0"}`}>
           <div className="w-full">
@@ -82,7 +86,6 @@ const Login = () => {
               <button type="submit" className="my-auto border-1 border-[#e8e6e3] text-lg px-[2rem] py-[1.3rem] rounded-xs hover:bg-[#e8e6e3] hover:text-black transition-all cursor-pointer">
                 Login
               </button>
-              {message && <p className="text-white">{message}</p>}
             </div>
           </form>
         </div>

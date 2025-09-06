@@ -20,6 +20,6 @@ router.get("/dashboard", async (req, res) => {
 })
 router.post("/logout", (req, res) => {
   res.clearCookie("token");
-  res.json({ message: `Logged out ${req.user.email} successfully` });
+  res.json({ message: `Logged out successfully` });
 });
 export default router;

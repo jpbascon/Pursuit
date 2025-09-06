@@ -39,11 +39,7 @@ const About = () => {
   }, [])
   return (
     <>
-      <div className="relative px-[10%] py-[10%] min-h-screen">
-        <img
-          src="/landingBg.jpg"
-          alt="Background"
-          className="absolute inset-0 w-full h-full object-cover brightness-35 pointer-events-none" />
+      <div className="px-[10%] py-[10%] min-h-screen">
         <div className="relative flex max-w-7xl mx-auto z-10">
           <div className="gap-14 flex flex-col w-full">
             <h1 className={`text-8xl font-bold italic font-heading transition duration-800 ${firstHeader ? "opacity-100 developer" : "opacity-0"}`}>Meet the <span className={`bg-white outlined-text inline-block transition duration-800 ${developer ? "opacity-100" : "opacity-0"}`}>developer</span></h1>

@@ -49,11 +49,7 @@ const LandingPage = () => {
 
   return (
     <>
-      <div className="relative px-[10%] py-[10%] min-h-screen">
-        <img
-          src="/landingBg.jpg"
-          alt="Background"
-          className="absolute inset-0 w-full h-full object-cover brightness-35 pointer-events-none" />
+      <div className="px-[10%] py-[10%] min-h-screen">
         <div className="max-w-7xl mx-auto flex flex-col gap-35 items-start relative z-10">
           <div className="flex flex-col italic">
             <h1 className={`text-9xl font-bold transition duration-800 ${showHeader ? "opacity-100 landing-page" : "opacity-0"}`}>Chase your dreams

@@ -1,17 +1,54 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
+import { logoutUser } from "../api";
 
-const Navbar = () => {
+const Navbar = ({ setAlert, setAlertMessage, setIsLoggedIn, isLoggedIn }) => {
+  const navigate = useNavigate();
+  const logout = async () => {
+    try {
+      const res = await logoutUser();
+      console.log("hi")
+      console.log("hi1")
+      setTimeout(() => { setAlert(false) }, 3500)
+      setAlertMessage(res.data.message);
+      setIsLoggedIn(false);
+      localStorage.setItem("isLoggedIn", "false");
+      navigate("/");
+    } catch (err) {
+      setAlert(true);
+      setTimeout(() => { setAlert(false) }, 3500)
+      setAlertMessage(err.response?.data?.error || "Logout failed");
+    }
+  }
   return (
     <>
       <div className="flex justify-between sticky inset-x-0 top-0 h-[80px] px-[8.5%] bg-[#111313] z-500">
-        <NavLink to="/" className="flex justify-center items-center">
-          <svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <text x="50%" y="50%" dominantBaseline="central" textAnchor="middle" fill="#e8e6e3" fontSize="42" fontWeight="bold" fontStyle="italic" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="-0.02em">Pursuit</text>
-          </svg>
-        </NavLink>
+        {isLoggedIn ?
+          <NavLink to="/dashboard" className="flex justify-center items-center">
+            <svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <text x="50%" y="50%" dominantBaseline="central" textAnchor="middle" fill="#e8e6e3" fontSize="42" fontWeight="bold" fontStyle="italic" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="-0.02em">Pursuit</text>
+            </svg>
+          </NavLink>
+          :
+          <NavLink to="/" className="flex justify-center items-center">
+            <svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <text x="50%" y="50%" dominantBaseline="central" textAnchor="middle" fill="#e8e6e3" fontSize="42" fontWeight="bold" fontStyle="italic" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="-0.02em">Pursuit</text>
+            </svg>
+          </NavLink>}
         <div className="flex gap-8 justify-center items-center right-nav">
-          <NavLink to="/about">About</NavLink>
-          <NavLink to="/contact">Contact</NavLink>
+          {isLoggedIn ?
+            <div className="flex gap-6">
+              <button
+                onClick={() => { logout() }} // example logout
+                className="underline">
+                Logout
+              </button>
+            </div>
+            :
+            <div className="flex gap-6">
+              <NavLink to="/about">About</NavLink>
+              <NavLink to="/contact">Contact</NavLink>
+            </div>
+          }
         </div>
       </div>
     </>

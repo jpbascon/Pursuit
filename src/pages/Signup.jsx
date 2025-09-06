@@ -2,21 +2,24 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { registerUser } from "../api.js";
 
-const Signup = () => {
-  const [visible, setVisible] = useState(false);
+const Signup = ({ setAlert, setAlertMessage }) => {
   const navigate = useNavigate();
+  const [visible, setVisible] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", password: "", passwordConfirm: "" });
-  const [message, setMessage] = useState("");
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const res = await registerUser(formData);
-      setMessage(res.data.message);
+      setAlert(true);
+      setTimeout(() => { setAlert(false) }, 3500)
+      setAlertMessage(res.data.message);
     } catch (err) {
-      if (err.response) setMessage(err.response.data.error);
-      else if (err.request) setMessage("No response from server. Please try again.");
-      else setMessage("An unexpected error occurred.");
+      setAlert(true);
+      setTimeout(() => { setAlert(false) }, 3500);
+      if (err.response) setAlertMessage(err.response.data.error);
+      else if (err.request) setAlertMessage("No response from server. Please try again.");
+      else setAlertMessage("An unexpected error occurred.");
     }
   }
   useEffect(() => {
@@ -27,11 +30,7 @@ const Signup = () => {
   }, [])
   return (
     <>
-      <div className="relative px-[10%] py-[7%] flex flex-col min-h-screen">
-        <img
-          src="/landingBg.jpg"
-          alt="Background"
-          className="absolute inset-0 w-full h-full object-cover brightness-35 pointer-events-none" />
+      <div className="px-[10%] py-[7%] flex flex-col min-h-screen">
         <div className={`gap-[5rem] flex flex-col items-start justify-center relative z-10 transition-opacity duration-500
           ${visible ? "opacity-100" : "opacity-0"}`}>
           <div className="w-full">
@@ -88,7 +87,6 @@ const Signup = () => {
               <button type="submit" className="my-auto border-1 border-[#e8e6e3] text-lg px-[2rem] py-[1.3rem] rounded-xs hover:bg-[#e8e6e3] hover:text-black transition-all cursor-pointer">
                 Create Account
               </button>
-              {message && <p className="text-white">{message}</p>}
             </div>
           </form>
         </div>
