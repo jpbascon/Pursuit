@@ -10,17 +10,21 @@ import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
 import { Analytics } from "@vercel/analytics/react"
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAlert } from './context/Alert';
 
 function App() {
   const { alert, alertMessage, hideAlert } = useAlert();
   const [isLoggedIn, setIsLoggedIn] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const loggedInStatus = localStorage.getItem("isLoggedIn");
-    if (loggedInStatus === "true") setIsLoggedIn(true);
+    if (loggedInStatus === "true") {
+      setIsLoggedIn(true);
+      navigate("/dashboard");
+    }
   }, [])
   return (
     <>
