@@ -59,7 +59,7 @@ app.post("/signup", async (req, res) => {
 app.post("/login", async (req, res) => {
   try {
     const email = validator.normalizeEmail(req.body.email?.trim());
-    const password = validator.normalizeEmail(req.body.password?.trim());
+    const password = validator.escape(req.body.password?.trim());
     if (!email || !password) return res.status(400).json({ error: "All fields are required" });
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ error: "Email does not exist" });
