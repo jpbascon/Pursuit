@@ -20,11 +20,11 @@ const Login = ({ setIsLoggedIn }) => {
       localStorage.setItem("isLoggedIn", "true");
       navigate('/dashboard');
     } catch (err) {
-      if (err.response && err.response.data?.error) {
-        showAlert(err.response.data.error);
-      } else {
-        showAlert(err);
-      }
+      showAlert(
+        err.response?.data?.error ||
+        err.message ||
+        "Something went wrong"
+      );
     }
   }
   useEffect(() => {

@@ -10,7 +10,6 @@ const Navbar = ({ setIsLoggedIn, isLoggedIn }) => {
       const res = await logoutUser();
       showAlert(res.data.message);
       setIsLoggedIn(false);
-      localStorage.setItem("isLoggedIn", "false");
       navigate("/");
     } catch (err) {
       showAlert(err.response?.data?.error || "Logout failed");

@@ -9,6 +9,9 @@ import LandingPage from './pages/LandingPage';
 import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
 import ProtectedRoute from './components/ProtectedRoute';
+import OTP from './pages/OTP';
+import ResetPassword from './pages/ResetPassword';
+import EmailVerification from './pages/EmailVerification';
 import { Analytics } from "@vercel/analytics/react"
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -16,15 +19,11 @@ import { useAlert } from './context/Alert';
 
 function App() {
   const { alert, alertMessage, hideAlert } = useAlert();
-  const [isLoggedIn, setIsLoggedIn] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    const loggedInStatus = localStorage.getItem("isLoggedIn");
-    if (loggedInStatus === "true") {
-      setIsLoggedIn(true);
-      navigate("/dashboard");
-    }
+    if (isLoggedIn) navigate("/dashboard");
   }, [])
   return (
     <>
@@ -44,11 +43,14 @@ function App() {
             <Route path="/profile" element={<Profile />}></Route>
             <Route path="/dashboard"
               element={
-                <ProtectedRoute>
+                <ProtectedRoute setIsLoggedIn={setIsLoggedIn}>
                   <Dashboard setIsLoggedIn={setIsLoggedIn} />
                 </ProtectedRoute>}>
             </Route>
             <Route path="/forgot-password" element={<ForgotPassword />}></Route>
+            <Route path="/otp" element={<OTP />}></Route>
+            <Route path="/reset-password" element={<ResetPassword />}></Route>
+            <Route path="/verify-email" element={<EmailVerification />}></Route>
           </Routes>
           <Analytics />
           <div className="absolute bottom-[25%] right-0 z-100">

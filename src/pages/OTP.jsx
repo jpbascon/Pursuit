@@ -1,21 +1,19 @@
 import { useEffect, useState } from 'react';
+import { verifyOtp } from '../api';
 import { useAlert } from '../context/Alert';
-import { forgotPassword } from '../api';
 import { useNavigate } from 'react-router-dom';
 
-const ForgotPassword = () => {
+const OTP = () => {
   const navigate = useNavigate();
-  const { showAlert } = useAlert();
   const [visible, setVisible] = useState(false);
-  const [formData, setFormData] = useState({ email: "" })
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
-  const handleSubmit = async (e) => {
+  const [otp, setOtp] = useState("");
+  const { showAlert } = useAlert();
+  const handleVerify = async (e) => {
     e.preventDefault();
     try {
-      const res = await forgotPassword(formData.email);
-      if (!res.ok) showAlert("Email does not exist");
+      const res = await verifyOtp(otp);
       showAlert(res.data.message);
-      navigate("/otp");
+      navigate("/reset-password");
     } catch (err) {
       showAlert(
         err.response?.data?.error ||
@@ -38,15 +36,15 @@ const ForgotPassword = () => {
           <div className="w-full">
             <h1 className="text-start text-8xl font-bold bg-white outlined-text size-fit italic">Reset Password</h1>
           </div>
-          <form className="flex flex-col gap-[1rem] w-[50%]" onSubmit={handleSubmit}>
+          <form className="flex flex-col gap-[1rem] w-[50%]" onSubmit={handleVerify}>
             <div className="flex flex-col">
-              <label to="email">
-                Email
+              <label to="otp">
+                Send OTP
               </label>
               <input
                 className="border-1 border-[#e8e6e3] resize-none transition-all px-2 py-3 rounded-xs outline-none"
-                name="email"
-                onChange={handleChange}
+                name="otp"
+                onChange={(e) => setOtp(e.target.value)}
               />
             </div>
             <div className="gap-1 mt-[2rem] flex flex-col">
@@ -63,4 +61,4 @@ const ForgotPassword = () => {
 }
 
 
-export default ForgotPassword;
+export default OTP;

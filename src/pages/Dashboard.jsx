@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
+import { useAlert } from "../context/Alert";
 
 export default function Dashboard() {
-  const API_URL = import.meta.env.MODE === "development" ? "http://localhost:5000/me" : "https://pursuit-production.up.railway.app/me";
+  const API_URL = import.meta.env.MODE === "production" ? "https://pursuit-production.up.railway.app/me" : "http://localhost:5000/me"
+  const { showAlert } = useAlert;
   let [name, setName] = useState("");
 
   useEffect(() => {
@@ -11,11 +13,14 @@ export default function Dashboard() {
           method: "GET",
           credentials: "include",
         })
-        if (!res.ok) throw new Error("Failed to fetch user");
+        if (!res.ok) showAlert("Failed to fetch user");
         const data = await res.json();
         setName(data.name);
       } catch (err) {
-        console.error("Fetch user error", err);
+        showAlert(
+          err.response?.data?.error ||
+          err.message ||
+          "Something went wrong");
       }
     }
     fetchUser();

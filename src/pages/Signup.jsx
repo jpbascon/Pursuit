@@ -5,7 +5,7 @@ import { useAlert } from '../context/Alert.jsx';
 
 const Signup = () => {
   const navigate = useNavigate();
-  const { alert, alertMessage, showAlert } = useAlert();
+  const { showAlert } = useAlert();
   const [visible, setVisible] = useState(false);
   const [formData, setFormData] = useState({ name: "", email: "", password: "", passwordConfirm: "" });
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -15,9 +15,10 @@ const Signup = () => {
       const res = await registerUser(formData);
       showAlert(res.data.message);
     } catch (err) {
-      if (err.response) showAlert(err.response.data.error);
-      else if (err.request) showAlert("No response from server. Please try again.");
-      else showAlert("An unexpected error occurred.");
+      showAlert(
+        err.response?.data?.error ||
+        err.message ||
+        "Something went wrong");
     }
   }
   useEffect(() => {

@@ -16,7 +16,10 @@ const Contact = () => {
       if (err.response && err.response.data?.error) {
         showAlert(err.response.data.error);
       } else {
-        showAlert(err);
+        showAlert(
+          err.response?.data?.error ||
+          err.message ||
+          "Something went wrong");
       }
     }
   }

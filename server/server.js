@@ -10,6 +10,7 @@ import userRoutes from "./routes/userRoutes.js";
 import cookieParser from "cookie-parser";
 import { authMiddleware } from "./authMiddleware.js";
 import nodemailer from "nodemailer";
+import crypto from "crypto";                                          // Creates token for email verification
 
 dotenv.config();                                                      // Load environment variables from .env file into process.env
 
@@ -25,8 +26,8 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
-app.use(express.json());                                              // Parse incoming requests with JSON bodies (req.body)
-app.use("/a", userRoutes);                                            // Sets the endpoint for authenticated routes
+app.use(express.json());
+app.use("/a", userRoutes);
 app.get("/", (req, res) => {
   res.send("Backend is running...");
 });
@@ -45,15 +46,52 @@ app.post("/signup", async (req, res) => {
     if (password.length < 8) return res.status(400).json({ error: "Password must be at least 8 characters long" });
     if (existingUser) return res.status(409).json({ error: "Email already registered" });
 
-    const salt = await bcrypt.genSalt(10);                                  // Generates random string for hashing
+    const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
-    const newUser = new User({ name, email, password: hashedPassword });    // Creates a document instance according to User schema
-    await newUser.save();                                                   // Checks for validation according to User schema before saving
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const newUser = new User({
+      name,
+      email,
+      password: hashedPassword,
+      verificationToken,
+      verificationTokenExpiry: Date.now() + 60 * 60 * 1000
+    });
+    await newUser.save();
 
-    res.status(201).json({ message: "Account registered" });                // Appends the new user into /users as JSON
-
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS,
+      }
+    })
+    const verifyUrl = process.env.MODE === "production" ? `https://pursuit-production.up.railway.app/verify-email?token=${verificationToken}&email=${email}` : `http://localhost:5000/verify-email?token=${verificationToken}&email=${email}`
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: email,
+      subject: "Verify your account",
+      text: `Click here to verify your account ${verifyUrl}`,
+    })
+    res.status(201).json({ message: "Account created! Please verify your email" });
   } catch (err) {
     res.status(400).json({ error: err.message });
+  }
+})
+app.get("/verify-email", async (req, res) => {
+  try {
+    const { token, email } = req.query;
+    const user = await User.findOne({ email, verificationToken: token });
+
+    if (!user) return res.status(400).json({ error: "Invalid or expired verification link" });
+    if (user.verificationTokenExpiry < Date.now()) return res.status(400).json({ error: "Verification token expired" });
+
+    user.isVerified = true;
+    user.verificationToken = undefined;
+    user.verificationTokenExpiry = undefined;
+    await user.save();
+    process.env.MODE === "production" ? res.redirect("https://pursuit-production.up.railway.app/verify-email") : res.redirect("http://localhost:5173/verify-email");
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 })
 app.post("/login", async (req, res) => {
@@ -70,9 +108,9 @@ app.post("/login", async (req, res) => {
       JWT_SECRET,
     );
     res.cookie("token", token, {
-      httpOnly: true,
-      secure: false,
-      sameSite: "lax"
+      httpOnly: process.env.MODE === "development",
+      secure: process.env.MODE === "production",
+      sameSite: "none"
     });
     res.json({ message: "Login successful" });
   } catch (err) {
@@ -85,8 +123,10 @@ app.post("/contact", async (req, res) => {
     const email = validator.normalizeEmail(req.body.email?.trim());
     const subject = validator.escape(req.body.subject?.trim());
     const message = validator.escape(req.body.message?.trim());
+
     if (!email || !subject || !message) return res.status(400).json({ error: "All fields are required" });
     if (!validator.isEmail(email)) return res.status(400).json({ error: "Invalid email address" });
+
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -98,8 +138,8 @@ app.post("/contact", async (req, res) => {
       from: process.env.EMAIL_USER,
       to: process.env.EMAIL_USER,
       replyTo: email,
-      subject: `New message from ${email}`,
-      text: `From: ${email}\nSubject: ${subject}\nMessage: \n\n${message}`
+      subject: `${subject} • New message from ${email}`,
+      text: message
     }
     await transporter.sendMail(mailOptions);
     res.json({ success: true, message: "Message sent successfully!" });
@@ -107,15 +147,91 @@ app.post("/contact", async (req, res) => {
     res.status(500).json({ success: false, message: "Message fail to send" });
   }
 })
-app.get("/users", async (req, res) => {
+app.post("/forgot-password", async (req, res) => {
   try {
-    const { email } = req.query;
-    if (!email) return res.status(400).json({ message: "Email is required" });
+    const email = validator.normalizeEmail(req.body.email?.trim());
+    if (!email) return res.status(400).json({ error: "Email is required" });
     const user = await User.findOne({ email }).select("-password");
-    if (!user) return res.status(404).json({ message: "Email does not exist" });
-    res.json(user);
+    if (!user) return res.status(404).json({ error: "Email does not exist" });
+
+    const resetToken = crypto.randomBytes(32).toString("hex");
+    const hashedToken = await bcrypt.hash(resetToken, 10);
+    user.resetToken = hashedToken;
+    user.resetTokenExpiry = Date.now() + 15 * 60 * 1000;
+    await user.save();
+    res.cookie("resetToken", resetToken, {
+      httpOnly: process.env.MODE === "development",
+      secure: process.env.MODE === "production",
+      sameSite: "Strict",
+      maxAge: 15 * 60 * 1000,
+    });
+
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+    user.OTP = otp;
+    user.OTPExpiry = Date.now() + 10 * 60 * 1000;
+    await user.save();
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASS
+      }
+    });
+
+    await transporter.sendMail({
+      from: process.env.EMAIL_USER,
+      to: user.email,
+      subject: "Password Reset OTP",
+      text: `Your OTP code is ${otp}. It is valid for 10 minutes.`
+    });
+    res.json({ message: "OTP sent to your email" });
   } catch (err) {
     res.status(500).json({ err: "Server error" });
+  }
+})
+app.post("/verify-otp", async (req, res) => {
+  try {
+    const resetToken = req.cookies.resetToken;
+    if (!resetToken) return res.status(400).json({ error: "Reset token missing!" });
+    const user = await User.findOne({ resetToken: { $exists: true } });
+    if (!user) return res.status(400).json({ error: "Invalid or expired reset token" });
+    const isValid = await bcrypt.compare(resetToken, user.resetToken);
+    if (!isValid || Date.now() > user.resetTokenExpiry) return res.status(400).json({ error: "Invalid or expired reset token" });
+    const otp = validator.escape(req.body.otp?.trim());
+    if (!otp || user.OTP !== otp || Date.now() > user.OTPExpiry) return res.status(400).json({ error: "Invalid or expired OTP" });
+
+    user.OTP = undefined;
+    user.OTPExpiry = undefined;
+    await user.save();
+    res.json({ message: "OTP Verified" });
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+})
+app.put("/reset-password", async (req, res) => {
+  try {
+    const password = validator.escape(req.body.password?.trim());
+    const passwordConfirm = validator.escape(req.body.passwordConfirm?.trim());
+    if (!password || !passwordConfirm) return res.status(400).json({ error: "All fields are required" });
+    if (password !== passwordConfirm) return res.status(400).json({ error: "Passwords do not match" });
+    const resetToken = req.cookies.resetToken;
+    if (!resetToken) return res.status(400).json({ error: "No reset token found" });
+    const user = await User.findOne({ resetToken: { $exists: true } });
+    if (!user) return res.status(400).json({ error: "User not found" });
+    const isValid = await bcrypt.compare(resetToken, user.resetToken);
+    if (!isValid || Date.now() > user.resetTokenExpiry) return res.status(400).json({ error: "Invalid or expired reset token" });
+    const isSamePassword = await bcrypt.compare(password, user.password);
+    if (isSamePassword) return res.status(400).json({ error: "You entered an old password!" });
+
+    const salt = await bcrypt.genSalt(10);
+    user.password = await bcrypt.hash(password, salt);
+    user.resetToken = undefined;
+    user.resetTokenExpiry = undefined;
+    await user.save();
+    res.clearCookie("resetToken");
+    res.json({ message: "Password changed successfully" });
+  } catch (err) {
+    res.json({ error: err.message });
   }
 })
 app.get("/me", authMiddleware, async (req, res) => {
@@ -127,29 +243,6 @@ app.get("/me", authMiddleware, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-app.put("/me", async (req, res) => {
-  try {
-    const updates = {};
-    if (req.body.password === req.body.passwordConfirm) res.status(400).json({ error: "Passwords do not match" });
-    if (req.body.password) {
-      const password = validator.escape(req.body.password);
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt)
-      if (!password) return res.status(400).json({ error: "Invalid user password" });
-      updates.password = hashedPassword;
-    }
-    if (Object.keys(updates).length === 0) return res.status(400).json({ error: "No valid fields provided" });
-    const updatedUser = await User.findByIdAndUpdate(
-      req.params.id,
-      updates,
-      { new: true }
-    );
-    if (!updatedUser) return res.status(404).json({ error: "User not found" });
-    res.json({ message: "Password changed" });
-  } catch (err) {
-    res.status(400).json({ error: err.message });
-  }
-})
 app.delete("/me", async (req, res) => {
   try {
     const deletedUser = await User.findByIdAndDelete(req.params.id);

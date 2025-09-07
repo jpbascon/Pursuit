@@ -18,8 +18,16 @@ const userSchema = new mongoose.Schema(       // Define the schema (structure/bl
       type: String,
       required: true,
     },
-    resetOTP: String,
-    resetOTPExpiry: Date,
+    isVerified: {
+      type: Boolean,
+      default: false,
+    },
+    verificationToken: String,
+    verificationTokenExpiry: Date,
+    OTP: String,
+    OTPExpiry: Date,
+    resetToken: String,
+    resetTokenExpiry: Date,
   },
   { timestamps: true }
 );
