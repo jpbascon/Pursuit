@@ -1,24 +1,24 @@
 import express from "express";
 import { authMiddleware } from "../authMiddleware.js";
+import User from "../models/User.js";
 
 const router = express.Router();
-router.use(authMiddleware);
 
-router.get("/profile", async (req, res) => {
+router.get("/profile", authMiddleware, async (req, res) => {
   try {
     res.json({ message: `Welcome to your profile, ${req.user.email}. You are authenticated` });
   } catch (err) {
     res.status(500).json({ error: "Server error" });
   }
 })
-router.get("/dashboard", async (req, res) => {
+router.get("/dashboard", authMiddleware, async (req, res) => {
   try {
     res.json({ message: `Welcome to the dashboard, ${req.user.name}. You are authenticated` });
   } catch (err) {
     res.status(500).json({ error: "Server error" });
   }
 })
-router.post("/logout", (req, res) => {
+router.post("/logout", authMiddleware, (req, res) => {
   res.clearCookie("token");
   res.json({ message: `Logged out successfully` });
 });

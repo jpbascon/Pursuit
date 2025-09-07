@@ -17,7 +17,9 @@ const userSchema = new mongoose.Schema(       // Define the schema (structure/bl
     password: {
       type: String,
       required: true,
-    }
+    },
+    resetOTP: String,
+    resetOTPExpiry: Date,
   },
   { timestamps: true }
 );

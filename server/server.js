@@ -70,9 +70,9 @@ app.post("/login", async (req, res) => {
       JWT_SECRET,
     );
     res.cookie("token", token, {
-      httpOnly: false,
-      secure: true,
-      sameSite: "none"
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax"
     });
     res.json({ message: "Login successful" });
   } catch (err) {
@@ -107,6 +107,17 @@ app.post("/contact", async (req, res) => {
     res.status(500).json({ success: false, message: "Message fail to send" });
   }
 })
+app.get("/users", async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (!email) return res.status(400).json({ message: "Email is required" });
+    const user = await User.findOne({ email }).select("-password");
+    if (!user) return res.status(404).json({ message: "Email does not exist" });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ err: "Server error" });
+  }
+})
 app.get("/me", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("name email");
@@ -119,12 +130,7 @@ app.get("/me", authMiddleware, async (req, res) => {
 app.put("/me", async (req, res) => {
   try {
     const updates = {};
-
-    if (req.body.email) {
-      const email = validator.normalizeEmail(req.body.email);
-      if (!email) return res.status(400).json({ error: "Invalid user email" });
-      updates.email = email;
-    }
+    if (req.body.password === req.body.passwordConfirm) res.status(400).json({ error: "Passwords do not match" });
     if (req.body.password) {
       const password = validator.escape(req.body.password);
       const salt = await bcrypt.genSalt(10);
@@ -139,7 +145,7 @@ app.put("/me", async (req, res) => {
       { new: true }
     );
     if (!updatedUser) return res.status(404).json({ error: "User not found" });
-    res.json(updatedUser);
+    res.json({ message: "Password changed" });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
