@@ -26,7 +26,7 @@ function App() {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch(API_URL, { credentials: true, })
+        const res = await fetch(API_URL, { credentials: "include", })
         if (!res.ok) return setIsLoggedIn(false);
         const data = await res.json();
         if (data.user) { setIsLoggedIn(true); navigate("/dashboard"); }
