@@ -119,16 +119,18 @@ app.post("/contact", async (req, res) => {
     const email = validator.normalizeEmail(req.body.email?.trim());
     const subject = validator.escape(req.body.subject);
     const message = validator.escape(req.body.message);
+    const recepient = "basconj50@gmail.com";
 
     if (!email || !subject || !message) return res.status(400).json({ error: "All fields are required" });
     if (!validator.isEmail(email)) return res.status(400).json({ error: "Invalid email address" });
 
-    await resend.emails.send({
+    const response = await resend.emails.send({
       from: "Pursuit <onboarding@resend.dev>",
-      to: "basconj50@gmail.com",
-      subject,
+      to: recepient,
+      subject: `Message from ${email}: ${subject}`,
       html: `<p>${message}</p>`
     })
+    console.log("Resend response:", response);
     res.json({ success: true, message: "Message sent successfully!" });
   } catch (err) {
     res.status(500).json({
