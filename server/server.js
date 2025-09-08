@@ -125,7 +125,7 @@ app.post("/contact", async (req, res) => {
 
     await resend.emails.send({
       from: "Pursuit <onboarding@resend.dev>",
-      to: email,
+      to: "basconj50@gmail.com",
       subject,
       html: `<p>${message}</p>`
     })

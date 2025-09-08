@@ -59,6 +59,8 @@ const Login = ({ setIsLoggedIn }) => {
                 name="password"
                 onChange={handleChange}
               />
+              {/* <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="feather feather-eye" viewBox="0 0 24 24">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8"></path><circle cx="12" cy="12" r="3"></circle></svg> */}
               <div className="flex justify-between">
                 <p>Forgot your password?&nbsp; <button
                   type="button"

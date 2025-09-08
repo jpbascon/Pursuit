@@ -28,7 +28,7 @@ function App() {
       try {
         const res = await fetch(API_URL, { credentials: true, })
         if (!res.ok) return setIsLoggedIn(false);
-        const data = await user.json();
+        const data = await res.json();
         if (data.user) { setIsLoggedIn(true); navigate("/dashboard"); }
       } catch (err) {
         console.error("Authentication check failed", err);
@@ -36,7 +36,7 @@ function App() {
       }
     }
     checkAuth();
-  }, [navigate])
+  }, [])
   return (
     <>
       <div className="flex flex-col min-h-screen relative">
