@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const isProduction = import.meta.env.MODE === "production";
+const isProduction = import.meta.env.NODE_ENV === "production";
 const api = axios.create({
   baseURL: isProduction ?
     "https://pursuit-production.up.railway.app/" :
