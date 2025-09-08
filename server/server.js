@@ -98,7 +98,7 @@ app.get("/verify-email", async (req, res) => {
 app.post("/login", async (req, res) => {
   try {
     const email = validator.normalizeEmail(req.body.email?.trim());
-    const password = validator.escape(req.body.password?.trim());
+    const password = req.body.password?.trim();
     if (!email || !password) return res.status(400).json({ error: "All fields are required" });
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ error: "Email does not exist" });
@@ -122,8 +122,8 @@ app.post("/login", async (req, res) => {
 app.post("/contact", async (req, res) => {
   try {
     const email = validator.normalizeEmail(req.body.email?.trim());
-    const subject = validator.escape(req.body.subject?.trim());
-    const message = validator.escape(req.body.message?.trim());
+    const subject = validator.escape(req.body.subject);
+    const message = validator.escape(req.body.message);
 
     if (!email || !subject || !message) return res.status(400).json({ error: "All fields are required" });
     if (!validator.isEmail(email)) return res.status(400).json({ error: "Invalid email address" });
@@ -145,7 +145,7 @@ app.post("/contact", async (req, res) => {
     await transporter.sendMail(mailOptions);
     res.json({ success: true, message: "Message sent successfully!" });
   } catch (err) {
-    res.status(500).json({ success: false, message: "Message fail to send" });
+    res.status(500).json({ success: false, message: err });
   }
 })
 app.post("/forgot-password", async (req, res) => {
@@ -160,7 +160,7 @@ app.post("/forgot-password", async (req, res) => {
     user.resetToken = hashedToken;
     user.resetTokenExpiry = Date.now() + 15 * 60 * 1000;
     await user.save();
-    res.cookie("resetToken", resetToken, {
+    res.cookie("resetData", JSON.stringify({ resetToken, email: user.email }), {
       httpOnly: true,
       secure: true,
       sameSite: "none",
@@ -187,14 +187,15 @@ app.post("/forgot-password", async (req, res) => {
     });
     res.json({ message: "OTP sent to your email" });
   } catch (err) {
-    res.status(500).json({ err: "Server error" });
+    res.status(500).json({ error: err.message });
   }
 })
 app.post("/verify-otp", async (req, res) => {
   try {
-    const resetToken = req.cookies.resetToken;
-    if (!resetToken) return res.status(400).json({ error: "Reset token missing!" });
-    const user = await User.findOne({ resetToken: { $exists: true } });
+    const resetData = req.cookies.resetData ? JSON.parse(req.cookies.resetData) : null;
+    if (!resetData) return res.status(400).json({ error: "Reset token missing!" });
+    const { resetToken, email } = resetData;
+    const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ error: "Invalid or expired reset token" });
     const isValid = await bcrypt.compare(resetToken, user.resetToken);
     if (!isValid || Date.now() > user.resetTokenExpiry) return res.status(400).json({ error: "Invalid or expired reset token" });
@@ -206,18 +207,19 @@ app.post("/verify-otp", async (req, res) => {
     await user.save();
     res.json({ message: "OTP Verified" });
   } catch (err) {
-    res.status(500).json({ error: "Server error" });
+    res.status(500).json({ error: err.message });
   }
 })
 app.put("/reset-password", async (req, res) => {
   try {
-    const password = validator.escape(req.body.password?.trim());
-    const passwordConfirm = validator.escape(req.body.passwordConfirm?.trim());
+    const password = req.body.password?.trim();
+    const passwordConfirm = req.body.passwordConfirm?.trim();
     if (!password || !passwordConfirm) return res.status(400).json({ error: "All fields are required" });
     if (password !== passwordConfirm) return res.status(400).json({ error: "Passwords do not match" });
-    const resetToken = req.cookies.resetToken;
-    if (!resetToken) return res.status(400).json({ error: "No reset token found" });
-    const user = await User.findOne({ resetToken: { $exists: true } });
+    const resetData = req.cookies.resetData ? JSON.parse(req.cookies.resetData) : null;
+    if (!resetData) return res.status(400).json({ error: "No reset token found" });
+    const { resetToken, email } = resetData;
+    const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ error: "User not found" });
     const isValid = await bcrypt.compare(resetToken, user.resetToken);
     if (!isValid || Date.now() > user.resetTokenExpiry) return res.status(400).json({ error: "Invalid or expired reset token" });
@@ -229,7 +231,7 @@ app.put("/reset-password", async (req, res) => {
     user.resetToken = undefined;
     user.resetTokenExpiry = undefined;
     await user.save();
-    res.clearCookie("resetToken");
+    res.clearCookie("resetData");
     res.json({ message: "Password changed successfully" });
   } catch (err) {
     res.json({ error: err.message });
