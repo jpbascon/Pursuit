@@ -63,7 +63,7 @@ app.post("/signup", async (req, res) => {
       {
         service_id: process.env.EMAILJS_SERVICE_ID,
         template_id: process.env.EMAILJS_TEMPLATE_ID,
-        user_id: process.env.EMAILJS_USER_ID,
+        accessToken: process.env.EMAILJS_USER_ID,
         template_params: {
           from_email: process.env.ADMIN_EMAIL,
           to_email: email,
@@ -135,7 +135,7 @@ app.post("/contact", async (req, res) => {
       {
         service_id: process.env.EMAILJS_SERVICE_ID,
         template_id: process.env.EMAILJS_TEMPLATE_ID,
-        user_id: process.env.EMAILJS_USER_ID,
+        accessToken: process.env.EMAILJS_USER_ID,
         template_params: {
           from_email: process.env.ADMIN_EMAIL,
           to_email: process.env.ADMIN_EMAIL,
@@ -183,7 +183,7 @@ app.post("/forgot-password", async (req, res) => {
       {
         service_id: process.env.EMAILJS_SERVICE_ID,
         template_id: process.env.EMAILJS_TEMPLATE_ID,
-        user_id: process.env.EMAILJS_USER_ID,
+        accessToken: process.env.EMAILJS_USER_ID,
         template_params: {
           from_email: process.env.ADMIN_EMAIL,
           to_email: email,
