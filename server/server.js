@@ -17,6 +17,8 @@ dotenv.config();                                                      // Load en
 const JWT_SECRET = process.env.JWT_SECRET;
 const PORT = Number(process.env.PORT) || 5000;
 const app = express();
+const isProduction = process.env.NODE_ENV === "production";
+const isDevelopment = process.env.NODE_ENV === "development";
 app.use(cookieParser());
 app.use(cors({
   origin: [
@@ -89,7 +91,7 @@ app.get("/verify-email", async (req, res) => {
     user.verificationToken = undefined;
     user.verificationTokenExpiry = undefined;
     await user.save();
-    process.env.MODE === "production" ? res.redirect("https://pursuit-production.up.railway.app/verify-email") : res.redirect("http://localhost:5173/verify-email");
+    isProduction ? res.redirect("https://pursuit-production.up.railway.app/verify-email") : res.redirect("http://localhost:5173/verify-email");
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -108,9 +110,9 @@ app.post("/login", async (req, res) => {
       JWT_SECRET,
     );
     res.cookie("token", token, {
-      httpOnly: process.env.MODE === "development",
-      secure: process.env.MODE === "production",
-      sameSite: "none"
+      httpOnly: isDevelopment,
+      secure: isProduction,
+      sameSite: isProduction ? "none" : "lax"
     });
     res.json({ message: "Login successful" });
   } catch (err) {
@@ -160,8 +162,8 @@ app.post("/forgot-password", async (req, res) => {
     user.resetTokenExpiry = Date.now() + 15 * 60 * 1000;
     await user.save();
     res.cookie("resetToken", resetToken, {
-      httpOnly: process.env.MODE === "development",
-      secure: process.env.MODE === "production",
+      httpOnly: isDevelopment,
+      secure: isProduction,
       sameSite: "Strict",
       maxAge: 15 * 60 * 1000,
     });

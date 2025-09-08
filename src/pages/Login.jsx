@@ -3,8 +3,6 @@ import { useEffect, useState } from 'react';
 import { loginUser } from "../api.js";
 import { useAlert } from '../context/Alert.jsx';
 
-localStorage.getItem("isLoggedIn");
-
 const Login = ({ setIsLoggedIn }) => {
   const { showAlert } = useAlert();
   const [visible, setVisible] = useState(false);
@@ -17,7 +15,6 @@ const Login = ({ setIsLoggedIn }) => {
       const res = await loginUser(formData);
       showAlert(res.data.message);
       setIsLoggedIn(true);
-      localStorage.setItem("isLoggedIn", "true");
       navigate('/dashboard');
     } catch (err) {
       showAlert(

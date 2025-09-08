@@ -18,7 +18,8 @@ const Signup = () => {
       showAlert(
         err.response?.data?.error ||
         err.message ||
-        "Something went wrong");
+        "Something went wrong"
+      );
     }
   }
   useEffect(() => {
