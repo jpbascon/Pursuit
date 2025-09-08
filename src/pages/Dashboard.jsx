@@ -20,7 +20,8 @@ export default function Dashboard() {
         showAlert(
           err.response?.data?.error ||
           err.message ||
-          "Something went wrong");
+          "Something went wrong"
+        );
       }
     }
     fetchUser();
