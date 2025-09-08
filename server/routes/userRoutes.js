@@ -5,7 +5,6 @@ const router = express.Router();
 
 router.get("/profile", authMiddleware, async (req, res) => {
   try {
-
     res.json({ message: `Welcome to your profile, ${req.user.email}. You are authenticated` });
   } catch (err) {
     res.status(500).json({ error: "Server error" });
@@ -13,7 +12,6 @@ router.get("/profile", authMiddleware, async (req, res) => {
 })
 router.get("/dashboard", authMiddleware, async (req, res) => {
   try {
-    if (!res.ok) return res.status(400).json({ error: "Invalid or expired token" });
     res.json({ message: `Welcome to the dashboard, ${req.user.name}. You are authenticated` });
   } catch (err) {
     res.status(500).json({ error: "Server error" });
