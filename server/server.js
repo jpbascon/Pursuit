@@ -9,7 +9,7 @@ import jwt from "jsonwebtoken";
 import userRoutes from "./routes/userRoutes.js";
 import cookieParser from "cookie-parser";
 import { authMiddleware } from "./authMiddleware.js";
-import { Resend } from "resend";
+import { SMTPClient } from "emailjs";
 import crypto from "crypto";                                          // Creates token for email verification
 
 dotenv.config();                                                      // Load environment variables from .env file into process.env
@@ -18,7 +18,12 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const PORT = Number(process.env.PORT) || 5000;
 const app = express();
 const isProduction = process.env.MODE === "production";
-const resend = new Resend(process.env.RESEND_API_KEY);
+const client = new SMTPClient({
+  user: process.env.EMAIL_USER,
+  password: process.env.EMAIL_PASS,
+  host: 'smtp.gmail.com',
+  ssl: true
+})
 app.use(cookieParser());
 app.use(cors({
   origin: [
@@ -56,19 +61,22 @@ app.post("/signup", async (req, res) => {
       email,
       password: hashedPassword,
       verificationToken,
-      verificationTokenExpiry: Date.now() + 60 * 60 * 1000
+      verificationTokenExpiry: Date.now() + 24 * 60 * 60 * 1000
     });
     await newUser.save();
 
     const verifyUrl = process.env.MODE === "production" ? `https://pursuit-production.up.railway.app/verify-email?token=${verificationToken}&email=${email}` : `http://localhost:5000/verify-email?token=${verificationToken}&email=${email}`
-    await resend.emails.send({
-      from: "Pursuit <onboarding@resend.dev>",
+    client.send({
+      subject: 'Verify your account',
+      from: `Pursuit <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: "Pursuit • Verify your account",
-      html: `<p>Click here to verify your account ${verifyUrl}. Link expires 10 mins after this email verification is sent.</p>`
-    })
-    res.status(201).json({ message: "Account created! Please verify your email" });
-    return true;
+      text: `Kindly verify your account here ${verifyUrl}. This link will expire after 24 hours upon this email is sent.`
+    },
+      (err) => {
+        if (err) return res.status(400).json({ error: err.message });
+        return res.json({ success: true, message: "Verification code sent" });
+      }
+    )
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -119,19 +127,22 @@ app.post("/contact", async (req, res) => {
     const email = validator.normalizeEmail(req.body.email?.trim());
     const subject = validator.escape(req.body.subject);
     const message = validator.escape(req.body.message);
-    const recipient = "jpbascon50@gmail.com";
 
     if (!email || !subject || !message) return res.status(400).json({ error: "All fields are required" });
     if (!validator.isEmail(email)) return res.status(400).json({ error: "Invalid email address" });
 
-    const response = await resend.emails.send({
-      from: "Pursuit <onboarding@resend.dev>",
-      to: recipient,
-      subject: `Message from ${email}: ${subject}`,
-      html: `<p>${message}</p>`
-    })
-    console.log("Resend response:", response);
-    res.json({ success: true, message: "Message sent successfully!" });
+    client.send({
+      subject,
+      from: `Pursuit <${process.env.EMAIL_USER}>`,
+      to: process.env.EMAIL_USER,
+      replyTo: email,
+      text: `From: ${email}\nMessage:\n\n${message}`
+    },
+      (err) => {
+        if (err) return res.status(400).json({ error: err.message });
+        return res.json({ success: true, message: "Message sent successfully!" });
+      }
+    )
   } catch (err) {
     res.status(500).json({
       error: "Failed to send email",
@@ -153,7 +164,7 @@ app.post("/forgot-password", async (req, res) => {
     user.resetTokenExpiry = Date.now() + 15 * 60 * 1000;
     await user.save();
     res.cookie("resetData", JSON.stringify({ resetToken, email: user.email }), {
-      httpOnly: false,
+      httpOnly: true,
       secure: true,
       sameSite: "none",
       maxAge: 15 * 60 * 1000,
@@ -163,13 +174,17 @@ app.post("/forgot-password", async (req, res) => {
     user.OTP = otp;
     user.OTPExpiry = Date.now() + 10 * 60 * 1000;
     await user.save();
-    await resend.emails.send({
-      from: "Pursuit <onboarding@resend.dev>",
+    client.send({
+      subject: "Your OTP",
+      from: `Pursuit <${process.env.EMAIL_USER}>`,
       to: email,
-      subject: `Pursuit • Your OTP`,
-      html: `<p>Your OTP is ${otp}. This code expires 10 minutes after this email is sent.</p>`
-    })
-    res.json({ message: "OTP sent to your email" });
+      text: `Your OTP is ${otp}. This code expires 10 minutes upon this email is sent.`
+    },
+      (err) => {
+        if (err) return res.status(400).json({ error: err.message });
+        res.json({ message: "OTP sent to your email" });
+      }
+    )
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
