@@ -119,14 +119,14 @@ app.post("/contact", async (req, res) => {
     const email = validator.normalizeEmail(req.body.email?.trim());
     const subject = validator.escape(req.body.subject);
     const message = validator.escape(req.body.message);
-    const recepient = "basconj50@gmail.com";
+    const recipient = "jpbascon50@gmail.com";
 
     if (!email || !subject || !message) return res.status(400).json({ error: "All fields are required" });
     if (!validator.isEmail(email)) return res.status(400).json({ error: "Invalid email address" });
 
     const response = await resend.emails.send({
       from: "Pursuit <onboarding@resend.dev>",
-      to: recepient,
+      to: recipient,
       subject: `Message from ${email}: ${subject}`,
       html: `<p>${message}</p>`
     })
@@ -167,7 +167,7 @@ app.post("/forgot-password", async (req, res) => {
       from: "Pursuit <onboarding@resend.dev>",
       to: email,
       subject: `Pursuit • Your OTP`,
-      html: `<p>Your OTP is ${otp}. This code expires after 10 minutes this email is sent.</p>`
+      html: `<p>Your OTP is ${otp}. This code expires 10 minutes after this email is sent.</p>`
     })
     res.json({ message: "OTP sent to your email" });
   } catch (err) {
