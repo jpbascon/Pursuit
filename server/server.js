@@ -17,8 +17,8 @@ dotenv.config();                                                      // Load en
 const JWT_SECRET = process.env.JWT_SECRET;
 const PORT = Number(process.env.PORT) || 5000;
 const app = express();
-const isProduction = process.env.NODE_ENV === "production";
-const isDevelopment = process.env.NODE_ENV === "development";
+const isProduction = process.env.MODE === "production";
+const isDevelopment = process.env.MODE === "development";
 app.use(cookieParser());
 app.use(cors({
   origin: [
@@ -67,7 +67,7 @@ app.post("/signup", async (req, res) => {
         pass: process.env.EMAIL_PASS,
       }
     })
-    const verifyUrl = process.env.NODE_ENV === "production" ? `https://pursuit-production.up.railway.app/verify-email?token=${verificationToken}&email=${email}` : `http://localhost:5000/verify-email?token=${verificationToken}&email=${email}`
+    const verifyUrl = process.env.MODE === "production" ? `https://pursuit-production.up.railway.app/verify-email?token=${verificationToken}&email=${email}` : `http://localhost:5000/verify-email?token=${verificationToken}&email=${email}`
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: email,
