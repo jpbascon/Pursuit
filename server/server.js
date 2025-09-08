@@ -67,7 +67,7 @@ app.post("/signup", async (req, res) => {
         pass: process.env.EMAIL_PASS,
       }
     })
-    const verifyUrl = process.env.MODE === "production" ? `https://pursuit-production.up.railway.app/verify-email?token=${verificationToken}&email=${email}` : `http://localhost:5000/verify-email?token=${verificationToken}&email=${email}`
+    const verifyUrl = process.env.NODE_ENV === "production" ? `https://pursuit-production.up.railway.app/verify-email?token=${verificationToken}&email=${email}` : `http://localhost:5000/verify-email?token=${verificationToken}&email=${email}`
     await transporter.sendMail({
       from: process.env.EMAIL_USER,
       to: email,
@@ -247,7 +247,7 @@ app.get("/me", authMiddleware, async (req, res) => {
 });
 app.delete("/me", async (req, res) => {
   try {
-    const deletedUser = await User.findByIdAndDelete(req.params.id);
+    const deletedUser = await User.findByIdAndDelete(req.user.id);
     if (!deletedUser) return res.status(404).json({ error: "User not found" });
     res.json({ message: "User deleted successfully" });
   } catch (err) {
