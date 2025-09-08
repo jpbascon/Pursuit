@@ -18,7 +18,7 @@ import { useState, useEffect } from "react";
 import { useAlert } from './context/Alert';
 
 function App() {
-  const { alert, alertMessage, hideAlert } = useAlert();
+  const { alert, alertMessage, hideAlert, showAlert } = useAlert();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
   const API_URL = import.meta.env.MODE === "production" ? "https://pursuit-production.up.railway.app/me" : "http://localhost:5000/me"
@@ -27,9 +27,9 @@ function App() {
     const checkAuth = async () => {
       try {
         const res = await fetch(API_URL, { credentials: "include", })
-        if (!res.ok) return setIsLoggedIn(false);
+        if (!res.ok) { setIsLoggedIn(false); showAlert("Failed to fetch user data"); }
         const data = await res.json();
-        if (data.user) { setIsLoggedIn(true); navigate("/dashboard"); }
+        if (data && data.email) { setIsLoggedIn(true); navigate("/dashboard"); }
       } catch (err) {
         console.error("Authentication check failed", err);
         setIsLoggedIn(false);
