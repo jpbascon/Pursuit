@@ -58,7 +58,6 @@ app.post("/signup", async (req, res) => {
       verificationTokenExpiry: Date.now() + 60 * 60 * 1000
     });
     await newUser.save();
-
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -127,9 +126,12 @@ app.post("/contact", async (req, res) => {
 
     if (!email || !subject || !message) return res.status(400).json({ error: "All fields are required" });
     if (!validator.isEmail(email)) return res.status(400).json({ error: "Invalid email address" });
-
+    console.log("EMAIL_USER:", process.env.EMAIL_USER);
+    console.log("EMAIL_PASS length:", process.env.EMAIL_PASS?.length);
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
