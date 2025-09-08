@@ -18,7 +18,6 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const PORT = Number(process.env.PORT) || 5000;
 const app = express();
 const isProduction = process.env.MODE === "production";
-const isDevelopment = process.env.MODE === "development";
 app.use(cookieParser());
 app.use(cors({
   origin: [
@@ -110,7 +109,7 @@ app.post("/login", async (req, res) => {
       JWT_SECRET,
     );
     res.cookie("token", token, {
-      httpOnly: isDevelopment,
+      httpOnly: isProduction,
       secure: isProduction,
       sameSite: isProduction ? "none" : "lax"
     });
@@ -162,7 +161,7 @@ app.post("/forgot-password", async (req, res) => {
     user.resetTokenExpiry = Date.now() + 15 * 60 * 1000;
     await user.save();
     res.cookie("resetToken", resetToken, {
-      httpOnly: isDevelopment,
+      httpOnly: isProduction,
       secure: isProduction,
       sameSite: "Strict",
       maxAge: 15 * 60 * 1000,
@@ -262,6 +261,7 @@ const startServer = async () => {
     console.log("PORT:", PORT);
     app.listen(PORT, "0.0.0.0", () => {
       console.log(`Server running on port ${PORT}`);
+      console.log("Connected to MongoDB");
     });
   } catch (err) {
     console.error("Failed to connect to MongoDB:", err);
