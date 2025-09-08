@@ -21,10 +21,22 @@ function App() {
   const { alert, alertMessage, hideAlert } = useAlert();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
+  const API_URL = import.meta.env.MODE === "production" ? "https://pursuit-production.up.railway.app/me" : "http://localhost:5000/me"
 
   useEffect(() => {
-    if (isLoggedIn) navigate("/dashboard");
-  }, [])
+    const checkAuth = async () => {
+      try {
+        const res = await fetch(API_URL, { credentials: true, })
+        if (!res.ok) return setIsLoggedIn(false);
+        const data = await user.json();
+        if (data.user) { setIsLoggedIn(true); navigate("/dashboard"); }
+      } catch (err) {
+        console.error("Authentication check failed", err);
+        setIsLoggedIn(false);
+      }
+    }
+    checkAuth();
+  }, [navigate])
   return (
     <>
       <div className="flex flex-col min-h-screen relative">
@@ -43,7 +55,7 @@ function App() {
             <Route path="/profile" element={<Profile />}></Route>
             <Route path="/dashboard"
               element={
-                <ProtectedRoute setIsLoggedIn={setIsLoggedIn}>
+                <ProtectedRoute>
                   <Dashboard setIsLoggedIn={setIsLoggedIn} />
                 </ProtectedRoute>}>
             </Route>

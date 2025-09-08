@@ -2,7 +2,7 @@ import { Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../api.js";
 
-const ProtectedRoute = ({ children, setIsLoggedIn }) => {
+const ProtectedRoute = ({ children }) => {
   const [isAuth, setIsAuth] = useState(null);
 
   useEffect(() => {
@@ -10,10 +10,8 @@ const ProtectedRoute = ({ children, setIsLoggedIn }) => {
       try {
         await api.get("/a/dashboard");
         setIsAuth(true);
-        setIsLoggedIn(true);
       } catch {
         setIsAuth(false);
-        setIsLoggedIn(false);
       }
     };
     checkAuth();

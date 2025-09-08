@@ -9,7 +9,7 @@ import jwt from "jsonwebtoken";
 import userRoutes from "./routes/userRoutes.js";
 import cookieParser from "cookie-parser";
 import { authMiddleware } from "./authMiddleware.js";
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 import crypto from "crypto";                                          // Creates token for email verification
 
 dotenv.config();                                                      // Load environment variables from .env file into process.env
@@ -18,6 +18,7 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const PORT = Number(process.env.PORT) || 5000;
 const app = express();
 const isProduction = process.env.MODE === "production";
+const resend = new Resend(process.env.RESEND_API_KEY);
 app.use(cookieParser());
 app.use(cors({
   origin: [
@@ -59,21 +60,15 @@ app.post("/signup", async (req, res) => {
     });
     await newUser.save();
 
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS,
-      }
-    })
     const verifyUrl = process.env.MODE === "production" ? `https://pursuit-production.up.railway.app/verify-email?token=${verificationToken}&email=${email}` : `http://localhost:5000/verify-email?token=${verificationToken}&email=${email}`
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+    await resend.emails.send({
+      from: "Acme <onboarding@resend.dev>",
       to: email,
-      subject: "Verify your account",
-      text: `Click here to verify your account ${verifyUrl}`,
+      subject: "Pursuit • Verify your account",
+      html: `<p>Click here to verify your account ${verifyUrl}. Link expires 10 mins after this email verification is sent.</p>`
     })
     res.status(201).json({ message: "Account created! Please verify your email" });
+    return true;
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -128,23 +123,12 @@ app.post("/contact", async (req, res) => {
     if (!email || !subject || !message) return res.status(400).json({ error: "All fields are required" });
     if (!validator.isEmail(email)) return res.status(400).json({ error: "Invalid email address" });
 
-    const transporter = nodemailer.createTransport({
-      host: "smtp.gmail.com",
-      port: 587,
-      secure: false,
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_USER,
-      replyTo: email,
-      subject: `${subject} • New message from ${email}`,
-      text: message
-    }
-    await transporter.sendMail(mailOptions);
+    await resend.emails.send({
+      from: "Acme <onboarding@resend.dev>",
+      to: email,
+      subject,
+      html: `<p>${message}</p>`
+    })
     res.json({ success: true, message: "Message sent successfully!" });
   } catch (err) {
     console.error("Email send error:", err);   // 👈 full object
@@ -178,20 +162,12 @@ app.post("/forgot-password", async (req, res) => {
     user.OTP = otp;
     user.OTPExpiry = Date.now() + 10 * 60 * 1000;
     await user.save();
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-      }
-    });
-
-    await transporter.sendMail({
-      from: process.env.EMAIL_USER,
-      to: user.email,
-      subject: "Password Reset OTP",
-      text: `Your OTP code is ${otp}. It is valid for 10 minutes.`
-    });
+    await resend.emails.send({
+      from: "Acme <onboarding@resend.dev>",
+      to: email,
+      subject: `Pursuit • Your OTP`,
+      html: `<p>Your OTP is ${otp}. This code expires after 10 minutes this email is sent.</p>`
+    })
     res.json({ message: "OTP sent to your email" });
   } catch (err) {
     res.status(500).json({ error: err.message });
