@@ -9,7 +9,7 @@ import jwt from "jsonwebtoken";
 import userRoutes from "./routes/userRoutes.js";
 import cookieParser from "cookie-parser";
 import { authMiddleware } from "./authMiddleware.js";
-import { SMTPClient } from "emailjs";
+import axios from "axios";
 import crypto from "crypto";                                          // Creates token for email verification
 
 dotenv.config();                                                      // Load environment variables from .env file into process.env
@@ -18,12 +18,6 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const PORT = Number(process.env.PORT) || 5000;
 const app = express();
 const isProduction = process.env.MODE === "production";
-const client = new SMTPClient({
-  user: process.env.EMAIL_USER,
-  password: process.env.EMAIL_PASS,
-  host: 'smtp.gmail.com',
-  ssl: true
-})
 app.use(cookieParser());
 app.use(cors({
   origin: [
@@ -53,19 +47,6 @@ app.post("/signup", async (req, res) => {
     if (password.length < 8) return res.status(400).json({ error: "Password must be at least 8 characters long" });
     if (existingUser) return res.status(409).json({ error: "Email already registered" });
 
-    const verifyUrl = process.env.MODE === "production" ? `https://pursuit-production.up.railway.app/verify-email?token=${verificationToken}&email=${email}` : `http://localhost:5000/verify-email?token=${verificationToken}&email=${email}`
-    client.send({
-      subject: 'Verify your account',
-      from: `Pursuit <${process.env.EMAIL_USER}>`,
-      to: email,
-      text: `Kindly verify your account here ${verifyUrl}. This link will expire after 24 hours upon this email is sent.`
-    },
-      (err) => {
-        if (err) return res.status(400).json({ error: err.message });
-        return res.json({ success: true, message: "Verification code sent" });
-      }
-    )
-
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
     const verificationToken = crypto.randomBytes(32).toString("hex");
@@ -76,6 +57,24 @@ app.post("/signup", async (req, res) => {
       verificationToken,
       verificationTokenExpiry: Date.now() + 24 * 60 * 60 * 1000
     });
+    const verifyUrl = process.env.MODE === "production" ? `https://pursuit-production.up.railway.app/verify-email?token=${verificationToken}&email=${email}` : `http://localhost:5000/verify-email?token=${verificationToken}&email=${email}`
+    await axios.post(
+      "https://api.emailjs.com/api/v1.0/email/send",
+      {
+        service_id: process.env.EMAILJS_SERVICE_ID,
+        template_id: process.env.EMAILJS_TEMPLATE_ID,
+        user_id: process.env.EMAILJS_USER_ID,
+        template_params: {
+          from_email: process.env.ADMIN_EMAIL,
+          to_email: email,
+          subject: `Pursuit | Verify your account`,
+          message: `Verify your account here ${verifyUrl}. This link is only eligible for 24 hours`,
+        },
+      },
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
     await newUser.save();
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -131,18 +130,25 @@ app.post("/contact", async (req, res) => {
     if (!email || !subject || !message) return res.status(400).json({ error: "All fields are required" });
     if (!validator.isEmail(email)) return res.status(400).json({ error: "Invalid email address" });
 
-    client.send({
-      subject,
-      from: process.env.EMAIL_USER,
-      to: process.env.EMAIL_USER,
-      replyTo: email,
-      text: `From: ${email}\nMessage:\n\n${message}`
-    },
-      (err) => {
-        if (err) return res.status(400).json({ error: err.message });
-        return res.json({ success: true, message: "Message sent successfully!" });
+    await axios.post(
+      "https://api.emailjs.com/api/v1.0/email/send",
+      {
+        service_id: process.env.EMAILJS_SERVICE_ID,
+        template_id: process.env.EMAILJS_TEMPLATE_ID,
+        user_id: process.env.EMAILJS_USER_ID,
+        template_params: {
+          from_email: process.env.ADMIN_EMAIL,
+          to_email: process.env.ADMIN_EMAIL,
+          reply_to: process.env.ADMIN_EMAIL,
+          subject,
+          message
+        },
+      },
+      {
+        headers: { "Content-Type": "application/json" },
       }
-    )
+    );
+    res.json({ success: true, message: "Message sent" });
   } catch (err) {
     res.status(500).json({
       error: "Failed to send email",
@@ -158,23 +164,13 @@ app.post("/forgot-password", async (req, res) => {
     const user = await User.findOne({ email }).select("-password");
     if (!user) return res.status(404).json({ error: "Email does not exist" });
 
-    client.send({
-      subject: "Your OTP",
-      from: `Pursuit <${process.env.EMAIL_USER}>`,
-      to: email,
-      text: `Your OTP is ${otp}. This code expires 10 minutes upon this email is sent.`
-    },
-      (err) => {
-        if (err) return res.status(400).json({ error: err.message });
-        res.json({ message: "OTP sent to your email" });
-      }
-    )
-
     const resetToken = crypto.randomBytes(32).toString("hex");
     const hashedToken = await bcrypt.hash(resetToken, 10);
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
     user.resetToken = hashedToken;
     user.resetTokenExpiry = Date.now() + 15 * 60 * 1000;
-    await user.save();
+    user.OTP = otp;
+    user.OTPExpiry = Date.now() + 10 * 60 * 1000;
     res.cookie("resetData", JSON.stringify({ resetToken, email: user.email }), {
       httpOnly: true,
       secure: true,
@@ -182,10 +178,25 @@ app.post("/forgot-password", async (req, res) => {
       maxAge: 15 * 60 * 1000,
     });
 
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    user.OTP = otp;
-    user.OTPExpiry = Date.now() + 10 * 60 * 1000;
+    await axios.post(
+      "https://api.emailjs.com/api/v1.0/email/send",
+      {
+        service_id: process.env.EMAILJS_SERVICE_ID,
+        template_id: process.env.EMAILJS_TEMPLATE_ID,
+        user_id: process.env.EMAILJS_USER_ID,
+        template_params: {
+          from_email: process.env.ADMIN_EMAIL,
+          to_email: email,
+          subject: "Your OTP",
+          message: `Your OTP is ${otp}. This code expires 10 minutes upon this email is sent.`
+        },
+      },
+      {
+        headers: { "Content-Type": "application/json" },
+      }
+    );
     await user.save();
+    res.json({ success: true, message: "OTP sent. Please check your email" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
