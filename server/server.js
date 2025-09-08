@@ -130,24 +130,29 @@ app.post("/contact", async (req, res) => {
     if (!email || !subject || !message) return res.status(400).json({ error: "All fields are required" });
     if (!validator.isEmail(email)) return res.status(400).json({ error: "Invalid email address" });
 
-    await axios.post(
-      "https://api.emailjs.com/api/v1.0/email/send",
-      {
-        service_id: process.env.EMAILJS_SERVICE_ID,
-        template_id: process.env.EMAILJS_TEMPLATE_ID,
-        user_id: process.env.EMAILJS_PUBLIC_KEY,
-        template_params: {
-          from_email: process.env.ADMIN_EMAIL,
-          to_email: process.env.ADMIN_EMAIL,
-          reply_to: process.env.ADMIN_EMAIL,
-          subject,
-          message
+    try {
+      const emailResponse = await axios.post(
+        "https://api.emailjs.com/api/v1.0/email/send",
+        {
+          service_id: process.env.EMAILJS_SERVICE_ID,
+          template_id: process.env.EMAILJS_TEMPLATE_ID,
+          user_id: process.env.EMAILJS_PUBLIC_KEY,
+          template_params: {
+            from_email: process.env.ADMIN_EMAIL,
+            to_email: process.env.ADMIN_EMAIL,
+            subject,
+            message: `New message from ${email}\nMessage: \n\n${message}`,
+          },
         },
-      },
-      {
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      console.log("EmailJS response:", emailResponse.data);
+    } catch (err) {
+      console.error("EmailJS error:", err.response?.data || err.message);
+      throw err;
+    }
     res.json({ success: true, message: "Message sent" });
   } catch (err) {
     res.status(500).json({
