@@ -62,7 +62,7 @@ app.post("/signup", async (req, res) => {
 
     const verifyUrl = process.env.MODE === "production" ? `https://pursuit-production.up.railway.app/verify-email?token=${verificationToken}&email=${email}` : `http://localhost:5000/verify-email?token=${verificationToken}&email=${email}`
     await resend.emails.send({
-      from: "Acme <onboarding@resend.dev>",
+      from: "Pursuit <onboarding@resend.dev>",
       to: email,
       subject: "Pursuit • Verify your account",
       html: `<p>Click here to verify your account ${verifyUrl}. Link expires 10 mins after this email verification is sent.</p>`
@@ -124,7 +124,7 @@ app.post("/contact", async (req, res) => {
     if (!validator.isEmail(email)) return res.status(400).json({ error: "Invalid email address" });
 
     await resend.emails.send({
-      from: "Acme <onboarding@resend.dev>",
+      from: "Pursuit <onboarding@resend.dev>",
       to: email,
       subject,
       html: `<p>${message}</p>`
@@ -163,7 +163,7 @@ app.post("/forgot-password", async (req, res) => {
     user.OTPExpiry = Date.now() + 10 * 60 * 1000;
     await user.save();
     await resend.emails.send({
-      from: "Acme <onboarding@resend.dev>",
+      from: "Pursuit <onboarding@resend.dev>",
       to: email,
       subject: `Pursuit • Your OTP`,
       html: `<p>Your OTP is ${otp}. This code expires after 10 minutes this email is sent.</p>`
