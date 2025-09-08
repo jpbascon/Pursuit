@@ -53,18 +53,6 @@ app.post("/signup", async (req, res) => {
     if (password.length < 8) return res.status(400).json({ error: "Password must be at least 8 characters long" });
     if (existingUser) return res.status(409).json({ error: "Email already registered" });
 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-    const verificationToken = crypto.randomBytes(32).toString("hex");
-    const newUser = new User({
-      name,
-      email,
-      password: hashedPassword,
-      verificationToken,
-      verificationTokenExpiry: Date.now() + 24 * 60 * 60 * 1000
-    });
-    await newUser.save();
-
     const verifyUrl = process.env.MODE === "production" ? `https://pursuit-production.up.railway.app/verify-email?token=${verificationToken}&email=${email}` : `http://localhost:5000/verify-email?token=${verificationToken}&email=${email}`
     client.send({
       subject: 'Verify your account',
@@ -77,6 +65,18 @@ app.post("/signup", async (req, res) => {
         return res.json({ success: true, message: "Verification code sent" });
       }
     )
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+    const newUser = new User({
+      name,
+      email,
+      password: hashedPassword,
+      verificationToken,
+      verificationTokenExpiry: Date.now() + 24 * 60 * 60 * 1000
+    });
+    await newUser.save();
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -133,7 +133,7 @@ app.post("/contact", async (req, res) => {
 
     client.send({
       subject,
-      from: `Pursuit <${process.env.EMAIL_USER}>`,
+      from: process.env.EMAIL_USER,
       to: process.env.EMAIL_USER,
       replyTo: email,
       text: `From: ${email}\nMessage:\n\n${message}`
@@ -158,6 +158,18 @@ app.post("/forgot-password", async (req, res) => {
     const user = await User.findOne({ email }).select("-password");
     if (!user) return res.status(404).json({ error: "Email does not exist" });
 
+    client.send({
+      subject: "Your OTP",
+      from: `Pursuit <${process.env.EMAIL_USER}>`,
+      to: email,
+      text: `Your OTP is ${otp}. This code expires 10 minutes upon this email is sent.`
+    },
+      (err) => {
+        if (err) return res.status(400).json({ error: err.message });
+        res.json({ message: "OTP sent to your email" });
+      }
+    )
+
     const resetToken = crypto.randomBytes(32).toString("hex");
     const hashedToken = await bcrypt.hash(resetToken, 10);
     user.resetToken = hashedToken;
@@ -174,17 +186,6 @@ app.post("/forgot-password", async (req, res) => {
     user.OTP = otp;
     user.OTPExpiry = Date.now() + 10 * 60 * 1000;
     await user.save();
-    client.send({
-      subject: "Your OTP",
-      from: `Pursuit <${process.env.EMAIL_USER}>`,
-      to: email,
-      text: `Your OTP is ${otp}. This code expires 10 minutes upon this email is sent.`
-    },
-      (err) => {
-        if (err) return res.status(400).json({ error: err.message });
-        res.json({ message: "OTP sent to your email" });
-      }
-    )
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
