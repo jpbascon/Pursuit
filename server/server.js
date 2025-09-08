@@ -109,7 +109,7 @@ app.post("/login", async (req, res) => {
       JWT_SECRET,
     );
     res.cookie("token", token, {
-      httpOnly: isProduction,
+      httpOnly: true,
       secure: isProduction,
       sameSite: isProduction ? "none" : "lax"
     });
@@ -161,7 +161,7 @@ app.post("/forgot-password", async (req, res) => {
     user.resetTokenExpiry = Date.now() + 15 * 60 * 1000;
     await user.save();
     res.cookie("resetToken", resetToken, {
-      httpOnly: isProduction,
+      httpOnly: true,
       secure: isProduction,
       sameSite: "Strict",
       maxAge: 15 * 60 * 1000,
