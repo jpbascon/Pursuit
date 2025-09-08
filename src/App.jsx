@@ -27,7 +27,7 @@ function App() {
     const checkAuth = async () => {
       try {
         const res = await fetch(API_URL, { credentials: "include", })
-        if (!res.ok) { setIsLoggedIn(false); showAlert("Failed to fetch user data"); }
+        if (!res.ok) { setIsLoggedIn(false); }
         const data = await res.json();
         if (data && data.email) { setIsLoggedIn(true); navigate("/dashboard"); }
       } catch (err) {

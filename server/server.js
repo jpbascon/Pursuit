@@ -131,7 +131,6 @@ app.post("/contact", async (req, res) => {
     })
     res.json({ success: true, message: "Message sent successfully!" });
   } catch (err) {
-    console.error("Email send error:", err);   // 👈 full object
     res.status(500).json({
       error: "Failed to send email",
       details: err.message,
