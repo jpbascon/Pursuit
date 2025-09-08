@@ -129,7 +129,9 @@ app.post("/contact", async (req, res) => {
     if (!validator.isEmail(email)) return res.status(400).json({ error: "Invalid email address" });
 
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      host: "smtp.gmail.com",
+      port: 587,
+      secure: false,
       auth: {
         user: process.env.EMAIL_USER,
         pass: process.env.EMAIL_PASS
