@@ -106,11 +106,11 @@ app.get("/verify-email", async (req, res) => {
     if (!user) return res.status(400).json({ error: "Invalid or expired verification link" });
     if (user.verificationTokenExpiry < Date.now()) return res.status(400).json({ error: "Verification token expired" });
 
+    isProduction ? res.redirect("https://pursuit-production.up.railway.app/verify-email") : res.redirect("http://localhost:5173/verify-email");
     user.isVerified = true;
     user.verificationToken = undefined;
     user.verificationTokenExpiry = undefined;
     await user.save();
-    isProduction ? res.redirect("https://pursuit-production.up.railway.app/verify-email") : res.redirect("http://localhost:5173/verify-email");
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
