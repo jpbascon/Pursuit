@@ -57,7 +57,7 @@ app.use(cors({
 app.post("/signup", async (req, res) => {
   try {
     const name = validator.escape(req.body.name?.trim());
-    const email = validator.normalizeEmail(req.body.email?.trim());
+    const email = req.body.email?.trim().toLowerCase();
     const password = req.body.password?.trim();
     const passwordConfirm = req.body.passwordConfirm?.trim();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
