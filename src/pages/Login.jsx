@@ -12,7 +12,7 @@ const Login = ({ setIsLoggedIn }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await loginUser(formData);
+      const res = await loginUser(formData);
       showAlert(res.data.message);
       setIsLoggedIn(true);
       navigate('/dashboard');
