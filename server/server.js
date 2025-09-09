@@ -139,7 +139,7 @@ app.post("/contact", async (req, res) => {
       subject: `Pursuit - ${subject}`,
       html: `<p>${message}</p>`
     });
-    console.log(response);
+    console.log("Mail response: ", response);
     res.json({ success: true, message: "Message sent" });
   } catch (err) {
     res.status(500).json({
