@@ -42,9 +42,6 @@ const sendBrevoEmail = async ({ to, subject, html, text }) => {
     throw new Error("Failed to send email");
   }
 }
-app.use(express.json());
-app.use("/a", userRoutes);
-app.use(cookieParser());
 app.use(cors({
   origin: [
     "http://localhost:5173",
@@ -53,6 +50,9 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
+app.use(cookieParser());
+app.use(express.json());
+app.use("/a", userRoutes);
 app.post("/signup", async (req, res) => {
   try {
     const name = validator.escape(req.body.name?.trim());
