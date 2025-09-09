@@ -9,7 +9,7 @@ import jwt from "jsonwebtoken";
 import userRoutes from "./routes/userRoutes.js";
 import cookieParser from "cookie-parser";
 import { authMiddleware } from "./authMiddleware.js";
-import axios from "axios";
+import nodemailer from "nodemailer";
 import crypto from "crypto";                                          // Creates token for email verification
 
 dotenv.config();                                                      // Load environment variables from .env file into process.env
@@ -18,6 +18,15 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const PORT = Number(process.env.PORT) || 5000;
 const app = express();
 const isProduction = process.env.MODE === "production";
+const transporter = nodemailer.createTransport({
+  host: process.env.BREVO_SMTP_HOST,
+  port: process.env.BREVO_SMTP_PORT,
+  secure: false,
+  auth: {
+    user: process.env.BREVO_SMTP_USER,
+    pass: process.env.BREVO_SMTP_PASS
+  }
+})
 app.use(cookieParser());
 app.use(cors({
   origin: [
@@ -58,23 +67,17 @@ app.post("/signup", async (req, res) => {
       verificationTokenExpiry: Date.now() + 24 * 60 * 60 * 1000
     });
     const verifyUrl = process.env.MODE === "production" ? `https://pursuit-production.up.railway.app/verify-email?token=${verificationToken}&email=${email}` : `http://localhost:5000/verify-email?token=${verificationToken}&email=${email}`
-    await axios.post(
-      "https://api.emailjs.com/api/v1.0/email/send",
-      {
-        service_id: process.env.EMAILJS_SERVICE_ID,
-        template_id: process.env.EMAILJS_TEMPLATE_ID,
-        user_id: process.env.EMAILJS_PUBLIC_KEY,
-        template_params: {
-          from_email: process.env.ADMIN_EMAIL,
-          to_email: email,
-          subject: `Pursuit | Verify your account`,
-          message: `Verify your account here ${verifyUrl}. This link is only eligible for 24 hours`,
-        },
-      },
-      {
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    await transporter.sendMail({
+      from: `"Pursuit App" <${process.env.BREVO_SMTP_USER}>`, // Brevo shared domain sender
+      to: email,
+      subject: "Verify Your Email - Pursuit",
+      text: `Hello ${name},\n\nPlease verify your email by clicking the link below:\n${verifyUrl}\n\nThis link will expire in 24 hours.`,
+      html: `
+        <p>Hello <strong>${name}</strong>,</p>
+        <p>Thank you for signing up! Please verify your email by clicking the link below:</p>
+        <p><a href="${verifyUrl}" target="_blank">Verify Email</a></p>
+        <p>This link will expire in 24 hours.</p>`
+    });
     await newUser.save();
   } catch (err) {
     res.status(400).json({ error: err.message });
@@ -130,29 +133,12 @@ app.post("/contact", async (req, res) => {
     if (!email || !subject || !message) return res.status(400).json({ error: "All fields are required" });
     if (!validator.isEmail(email)) return res.status(400).json({ error: "Invalid email address" });
 
-    try {
-      const emailResponse = await axios.post(
-        "https://api.emailjs.com/api/v1.0/email/send",
-        {
-          service_id: process.env.EMAILJS_SERVICE_ID,
-          template_id: process.env.EMAILJS_TEMPLATE_ID,
-          user_id: process.env.EMAILJS_PUBLIC_KEY,
-          template_params: {
-            from_email: process.env.ADMIN_EMAIL,
-            to_email: process.env.ADMIN_EMAIL,
-            subject,
-            message: `New message from ${email}\nMessage: \n\n${message}`,
-          },
-        },
-        {
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-      console.log("EmailJS response:", emailResponse.data);
-    } catch (err) {
-      console.error("EmailJS error:", err.response?.data || err.message);
-      throw err;
-    }
+    await transporter.sendMail({
+      from: `"Pursuit App" <${process.env.BREVO_SMTP_USER}>`,
+      to: process.env.BREVO_SMTP_ADMIN,
+      subject: `Pursuit - ${subject}`,
+      html: `<p>${message}</p>`
+    });
     res.json({ success: true, message: "Message sent" });
   } catch (err) {
     res.status(500).json({
