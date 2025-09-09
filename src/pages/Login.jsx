@@ -14,7 +14,7 @@ const Login = ({ setIsLoggedIn }) => {
     try {
       const res = await loginUser(formData);
       if (!res.ok) return showAlert(res.data.error?.message?.response?.data);
-      showAlert(res.data.message?.response?.error);
+      showAlert(res.data.message);
       setIsLoggedIn(true);
       navigate('/dashboard');
     } catch (err) {
