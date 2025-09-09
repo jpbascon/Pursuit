@@ -13,15 +13,13 @@ const Login = ({ setIsLoggedIn }) => {
     e.preventDefault();
     try {
       const res = await loginUser(formData);
+      if (!res.ok) return showAlert(res.message?.response?.data?.error);
       showAlert(res.data.message);
-      setIsLoggedIn(true);
       navigate('/dashboard');
+      setIsLoggedIn(true);
     } catch (err) {
-      showAlert(
-        err.response?.data?.error ||
-        err.message ||
-        "Something went wrong"
-      );
+      showAlert(err.response?.data?.error?.message || "Something went wrong");
+      setIsLoggedIn(false);
     }
   }
   useEffect(() => {
