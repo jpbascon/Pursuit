@@ -57,7 +57,7 @@ app.use(cors({
 app.post("/signup", async (req, res) => {
   try {
     const name = validator.escape(req.body.name?.trim());
-    const email = req.body.email?.trim().toLowerCase();
+    const email = validator.escape(req.body.email?.trim());
     const password = req.body.password?.trim();
     const passwordConfirm = req.body.passwordConfirm?.trim();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -79,10 +79,10 @@ app.post("/signup", async (req, res) => {
       verificationToken,
       verificationTokenExpiry: Date.now() + 24 * 60 * 60 * 1000
     });
+    await newUser.save();
     const verifyUrl = process.env.MODE === "production"
       ? `https://pursuit-production.up.railway.app/verify-email?token=${encodeURIComponent(verificationToken)}&email=${encodeURIComponent(email)}`
       : `http://localhost:5000/verify-email?token=${encodeURIComponent(verificationToken)}&email=${encodeURIComponent(email)}`;
-    await newUser.save();
     await sendBrevoEmail({
       to: email,
       subject: "Pursuit - Verify Your Email",
