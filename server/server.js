@@ -9,7 +9,7 @@ import jwt from "jsonwebtoken";
 import userRoutes from "./routes/userRoutes.js";
 import cookieParser from "cookie-parser";
 import { authMiddleware } from "./authMiddleware.js";
-import nodemailer from "nodemailer";
+import axios from "axios";
 import crypto from "crypto";                                          // Creates token for email verification
 
 dotenv.config();                                                      // Load environment variables from .env file into process.env
@@ -18,15 +18,33 @@ const JWT_SECRET = process.env.JWT_SECRET;
 const PORT = Number(process.env.PORT) || 5000;
 const app = express();
 const isProduction = process.env.MODE === "production";
-const transporter = nodemailer.createTransport({
-  host: process.env.BREVO_SMTP_HOST,
-  port: process.env.BREVO_SMTP_PORT,
-  secure: false,
-  auth: {
-    user: process.env.BREVO_SMTP_USER,
-    pass: process.env.BREVO_SMTP_PASS
+const sendBrevoEmail = async ({ to, subject, html, text }) => {
+  try {
+    const res = await axios.post("https://api.brevo.com/v3/smtp/email",
+      {
+        sender: { name: "Pursuit App", email: process.env.BREVO_SMTP_ADMIN },
+        to: [{ email: to }],
+        subject,
+        htmlContent: html,
+        textContent: text,
+      },
+      {
+        headers: {
+          "accept": "application/json",
+          "api-key": process.env.BREVO_API_KEY,
+          "content-type": "application/json"
+        }
+      },
+    );
+    console.log("Brevo email sent:", res.data);
+    return res.data;
+  } catch (err) {
+    console.error("Brevo API error:", err.response?.data || err.message);
+    throw new Error("Failed to send email");
   }
-})
+}
+app.use(express.json());
+app.use("/a", userRoutes);
 app.use(cookieParser());
 app.use(cors({
   origin: [
@@ -36,11 +54,6 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
-app.use(express.json());
-app.use("/a", userRoutes);
-app.get("/", (req, res) => {
-  res.send("Backend is running...");
-});
 app.post("/signup", async (req, res) => {
   try {
     const name = validator.escape(req.body.name?.trim());
@@ -67,18 +80,18 @@ app.post("/signup", async (req, res) => {
       verificationTokenExpiry: Date.now() + 24 * 60 * 60 * 1000
     });
     const verifyUrl = process.env.MODE === "production" ? `https://pursuit-production.up.railway.app/verify-email?token=${verificationToken}&email=${email}` : `http://localhost:5000/verify-email?token=${verificationToken}&email=${email}`
-    await transporter.sendMail({
-      from: `"Pursuit App" <${process.env.BREVO_SMTP_USER}>`, // Brevo shared domain sender
+    await sendBrevoEmail({
       to: email,
-      subject: "Verify Your Email - Pursuit",
+      subject: "Pursuit - Verify Your Email",
       text: `Hello ${name},\n\nPlease verify your email by clicking the link below:\n${verifyUrl}\n\nThis link will expire in 24 hours.`,
       html: `
         <p>Hello <strong>${name}</strong>,</p>
         <p>Thank you for signing up! Please verify your email by clicking the link below:</p>
         <p><a href="${verifyUrl}" target="_blank">Verify Email</a></p>
         <p>This link will expire in 24 hours.</p>`
-    });
+    })
     await newUser.save();
+    res.json({ success: true, message: "Signup successful! Check your email." });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
@@ -132,20 +145,12 @@ app.post("/contact", async (req, res) => {
 
     if (!email || !subject || !message) return res.status(400).json({ error: "All fields are required" });
     if (!validator.isEmail(email)) return res.status(400).json({ error: "Invalid email address" });
-    transporter.verify((err, success) => {
-      if (err) {
-        console.error("SMTP connection error:", err);
-      } else {
-        console.log("SMTP server is ready to send messages");
-      }
-    });
-    const response = await transporter.sendMail({
-      from: `"Pursuit App" <${process.env.BREVO_SMTP_USER}>`,
+    await sendBrevoEmail({
       to: process.env.BREVO_SMTP_ADMIN,
       subject: `Pursuit - ${subject}`,
-      html: `<p>${message}</p>`
+      text: `From: ${email}\n\n${message}`,
+      html: `<p>From: ${email}</p><p>${message}</p>`,
     });
-    console.log("Mail response: ", response);
     res.json({ success: true, message: "Message sent" });
   } catch (err) {
     console.error("Contact form error:", err);
@@ -176,24 +181,12 @@ app.post("/forgot-password", async (req, res) => {
       sameSite: "none",
       maxAge: 15 * 60 * 1000,
     });
-
-    await axios.post(
-      "https://api.emailjs.com/api/v1.0/email/send",
-      {
-        service_id: process.env.EMAILJS_SERVICE_ID,
-        template_id: process.env.EMAILJS_TEMPLATE_ID,
-        user_id: process.env.EMAILJS_PUBLIC_KEY,
-        template_params: {
-          from_email: process.env.ADMIN_EMAIL,
-          to_email: email,
-          subject: "Your OTP",
-          message: `Your OTP is ${otp}. This code expires 10 minutes upon this email is sent.`
-        },
-      },
-      {
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    await sendBrevoEmail({
+      to: email,
+      subject: "Your OTP",
+      text: `Your OTP is ${otp}. It expires in 10 minutes.`,
+      html: `<p>Your OTP is <strong>${otp}</strong>. It expires in 10 minutes.</p>`,
+    });
     await user.save();
     res.json({ success: true, message: "OTP sent. Please check your email" });
   } catch (err) {
@@ -215,7 +208,7 @@ app.post("/verify-otp", async (req, res) => {
     user.OTP = undefined;
     user.OTPExpiry = undefined;
     await user.save();
-    res.json({ message: "OTP Verified" });
+    res.json({ success: true, message: "OTP Verified" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -242,7 +235,7 @@ app.put("/reset-password", async (req, res) => {
     user.resetTokenExpiry = undefined;
     await user.save();
     res.clearCookie("resetData");
-    res.json({ message: "Password changed successfully" });
+    res.json({ success: true, message: "Password changed successfully" });
   } catch (err) {
     res.json({ error: err.message });
   }
