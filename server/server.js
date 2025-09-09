@@ -17,7 +17,6 @@ dotenv.config();                                                      // Load en
 const JWT_SECRET = process.env.JWT_SECRET;
 const PORT = Number(process.env.PORT) || 5000;
 const app = express();
-const isProduction = process.env.MODE === "production";
 const sendBrevoEmail = async ({ to, subject, html, text }) => {
   try {
     const res = await axios.post("https://api.brevo.com/v3/smtp/email",
@@ -100,6 +99,8 @@ app.get("/verify-email", async (req, res) => {
   try {
     const { email, token } = req.query;
     const user = await User.findOne({ email, verificationToken: token });
+    console.log(user.verificationToken)
+    console.log(user.email)
 
     if (!user) return res.status(400).json({ error: "Invalid or expired verification link" });
     if (user.verificationTokenExpiry < Date.now()) return res.status(400).json({ error: "Verification token expired" });
@@ -108,10 +109,9 @@ app.get("/verify-email", async (req, res) => {
     user.verificationToken = undefined;
     user.verificationTokenExpiry = undefined;
     await user.save();
-    isProduction ? res.redirect("https://pursuit-production.up.railway.app/verify-email") : res.redirect("http://localhost:5173/verify-email");
-    res.json({ success: true, message: "Your account is verified" });
+    return res.redirect("https://pursuit-production.up.railway.app/verify-email");
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message });
   }
 })
 app.post("/login", async (req, res) => {
