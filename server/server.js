@@ -79,7 +79,10 @@ app.post("/signup", async (req, res) => {
       verificationToken,
       verificationTokenExpiry: Date.now() + 24 * 60 * 60 * 1000
     });
-    const verifyUrl = process.env.MODE === "production" ? `https://pursuit-production.up.railway.app/verify-email?token=${verificationToken}&email=${email}` : `http://localhost:5000/verify-email?token=${verificationToken}&email=${email}`
+    const verifyUrl = process.env.MODE === "production"
+      ? `https://pursuit-production.up.railway.app/verify-email?token=${encodeURIComponent(verificationToken)}&email=${encodeURIComponent(email)}`
+      : `http://localhost:5000/verify-email?token=${encodeURIComponent(verificationToken)}&email=${encodeURIComponent(email)}`;
+    await newUser.save();
     await sendBrevoEmail({
       to: email,
       subject: "Pursuit - Verify Your Email",
@@ -90,8 +93,7 @@ app.post("/signup", async (req, res) => {
         <p><a href="${verifyUrl}" target="_blank">Verify Email</a></p>
         <p>This link will expire in 24 hours.</p>`
     })
-    await newUser.save();
-    res.json({ success: true, message: "Signup successful! Check your email." });
+    res.json({ success: true, message: "Signup successful! A verification link is sent to your inbox." });
   } catch (err) {
     res.status(400).json({ error: err.message });
   }
