@@ -109,7 +109,7 @@ app.get("/verify-email", async (req, res) => {
     user.verificationToken = undefined;
     user.verificationTokenExpiry = undefined;
     await user.save();
-    return res.redirect("https://pursuit-production.up.railway.app/verify-email");
+    return res.redirect("https://pursuit-production.up.railway.app/verify-email?status=success");
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
