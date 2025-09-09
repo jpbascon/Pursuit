@@ -18,7 +18,8 @@ router.get("/dashboard", authMiddleware, async (req, res) => {
   }
 })
 router.post("/logout", authMiddleware, (req, res) => {
-  res.clearCookie("token");
+  const user = res.clearCookie("token");
+  if (!user) return res.json({ error: "Failed to clear cookie" });
   res.json({ message: `Logged out successfully` });
 });
 export default router;

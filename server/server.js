@@ -43,10 +43,7 @@ const sendBrevoEmail = async ({ to, subject, html, text }) => {
   }
 }
 app.use(cors({
-  origin: [
-    "http://localhost:5173",
-    "https://pursuit-pi.vercel.app"
-  ],
+  origin: ["https://pursuit-pi.vercel.app"],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
