@@ -133,12 +133,13 @@ app.post("/contact", async (req, res) => {
     if (!email || !subject || !message) return res.status(400).json({ error: "All fields are required" });
     if (!validator.isEmail(email)) return res.status(400).json({ error: "Invalid email address" });
 
-    await transporter.sendMail({
+    const response = await transporter.sendMail({
       from: `"Pursuit App" <${process.env.BREVO_SMTP_USER}>`,
       to: process.env.BREVO_SMTP_ADMIN,
       subject: `Pursuit - ${subject}`,
       html: `<p>${message}</p>`
     });
+    console.log(response);
     res.json({ success: true, message: "Message sent" });
   } catch (err) {
     res.status(500).json({
