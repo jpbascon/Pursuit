@@ -132,7 +132,13 @@ app.post("/contact", async (req, res) => {
 
     if (!email || !subject || !message) return res.status(400).json({ error: "All fields are required" });
     if (!validator.isEmail(email)) return res.status(400).json({ error: "Invalid email address" });
-
+    transporter.verify((err, success) => {
+      if (err) {
+        console.error("SMTP connection error:", err);
+      } else {
+        console.log("SMTP server is ready to send messages");
+      }
+    });
     const response = await transporter.sendMail({
       from: `"Pursuit App" <${process.env.BREVO_SMTP_USER}>`,
       to: process.env.BREVO_SMTP_ADMIN,
@@ -142,6 +148,7 @@ app.post("/contact", async (req, res) => {
     console.log("Mail response: ", response);
     res.json({ success: true, message: "Message sent" });
   } catch (err) {
+    console.error("Contact form error:", err);
     res.status(500).json({
       error: "Failed to send email",
       details: err.message,
