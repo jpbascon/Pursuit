@@ -14,12 +14,12 @@ const Login = ({ setIsLoggedIn }) => {
     try {
       const res = await loginUser(formData);
       if (!res.ok) return showAlert(res.message?.response?.data?.error);
-      showAlert(res.data?.response?.message?.error);
-      navigate('/dashboard');
+      showAlert(res.message?.response?.data?.error);
       setIsLoggedIn(true);
+      return navigate('/dashboard');
     } catch (err) {
-      showAlert(err.response?.data?.error?.message || "Something went wrong");
       setIsLoggedIn(false);
+      return showAlert(err.response?.data?.error?.message || "Something went wrong");
     }
   }
   useEffect(() => {

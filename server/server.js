@@ -129,10 +129,10 @@ app.post("/login", async (req, res) => {
       secure: true,
       sameSite: "none"
     });
-    res.json({ message: "Login successful" });
+    return res.json({ success: true, message: "Login successful" });
   } catch (err) {
     console.error("Login error:", err);
-    res.status(500).json({ error: "Server error", details: err.message });
+    return res.status(500).json({ error: "Server error", details: err.message });
   }
 })
 app.post("/contact", async (req, res) => {
@@ -149,7 +149,7 @@ app.post("/contact", async (req, res) => {
       text: `From: ${email}\n\n${message}`,
       html: `<p>From: ${email}</p><p>${message}</p>`,
     });
-    res.json({ success: true, message: "Message sent" });
+    return res.json({ success: true, message: "Message sent" });
   } catch (err) {
     console.error("Contact form error:", err);
     res.status(500).json({
