@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, NavLink } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { loginUser } from "../api.js";
 import { useAlert } from '../context/Alert.jsx';
@@ -7,6 +7,7 @@ const Login = ({ setIsLoggedIn }) => {
   const { showAlert } = useAlert();
   const [visible, setVisible] = useState(false);
   const [formData, setFormData] = useState({ email: "", password: "" });
+  const [btnStyle, setBtnStyle] = useState(false);
   const navigate = useNavigate();
   const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
   const handleSubmit = async (e) => {
@@ -27,61 +28,53 @@ const Login = ({ setIsLoggedIn }) => {
     }, 50)
     return () => clearTimeout(timeout);
   }, [])
+  useEffect(() => {
+    if (!formData.email || !formData.password) setBtnStyle(false);
+    else setBtnStyle(true);
+  }, [formData])
   return (
     <>
-      <div className="px-[10%] py-[10%] min-h-screen">
-        <div className={`gap-[5rem] flex flex-col items-start justify-center relative z-10 transition-opacity duration-500
+      <div className="py-50 max-w-xl mx-auto min-h-screen">
+        <div className={`flex flex-col items-center justify-center relative z-10 transition-opacity duration-500
           ${visible ? "opacity-100" : "opacity-0"}`}>
-          <div className="w-full">
-            <h1 className="text-start text-8xl font-bold bg-white outlined-text size-fit italic">Welcome back</h1>
-          </div>
-          <form className="flex flex-col gap-[1rem] w-[50%]" onSubmit={handleSubmit}>
-            <div className="flex flex-col">
-              <label to="email">
-                Email
-              </label>
-              <input
-                className="border-1 border-[#e8e6e3] resize-none transition-all px-2 py-3 rounded-xs outline-none"
-                name="email"
-                onChange={handleChange}
-              />
+          <form className="px-15 py-10 gap-7 flex flex-col items-center rounded-sm w-full"
+            onSubmit={handleSubmit}>
+            <div className="flex flex-col items-center gap-3 w-full">
+              <h1 className="text-4xl font-bold">Login to <span className="font-bold size-fit transition duration-800">Pursuit</span>
+              </h1>
+              <p className="text-zinc-400 noto-font">Don't have an account? &nbsp;
+                <NavLink to="/signup" className="font-bold text-[#e8e6e3] hover:brightness-70 transition-brightness duration-200">
+                  Sign up</NavLink>.</p>
             </div>
-            <div className="flex flex-col">
-              <label to="password">
-                Password
-              </label>
-              <input
-                type="password"
-                className="border-1 border-[#e8e6e3] resize-none transition-all px-2 py-3 rounded-xs outline-none"
-                name="password"
-                onChange={handleChange}
-              />
-              {/* <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="feather feather-eye" viewBox="0 0 24 24">
-              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8"></path><circle cx="12" cy="12" r="3"></circle></svg> */}
-              <div className="flex justify-between">
-                <p>Forgot your password?&nbsp; <button
-                  type="button"
-                  className="underline italic"
-                  onClick={() => { navigate('/forgot-password'); }}
-                >
-                  Reset password
-                </button></p>
-                <p>Don't have an account?&nbsp; <button
-                  type="button"
-                  className="underline italic"
-                  onClick={() => { navigate('/signup'); }}>
-                  Sign up
-                </button></p>
+            <div className="flex flex-col gap-5 noto-font w-full text-[#7d7c7b]">
+              <div className="flex flex-col gap-1 text-sm">
+                <label to="email">Email</label>
+                <input name="email"
+                  className="border-[2px] border-neutral-800 h-12 px-4 rounded-2xl outline-none bg-[#121212] text-[#e8e6e3] noto-font"
+                  onChange={handleChange} />
+              </div>
+              <div className="flex flex-col gap-1 text-sm">
+                <div className="flex">
+                  <label to="password" className="flex-1">Password</label>
+                  <NavLink to="/forgot-password" className="noto-font text-[#e8e6e3] hover:brightness-70 transition-brightness duration-200">Forgot Password</NavLink>
+                </div>
+                <input name="password"
+                  type="password"
+                  placeholder="••••••••••••"
+                  className="border-[2px] border-neutral-800 h-12 px-4 rounded-2xl outline-none bg-[#121212] text-[#e8e6e3] noto-font"
+                  onChange={handleChange} />
+                <div className="flex w-full mt-4 noto-font">
+                  <button className={`welcome-buttons text-sm font-bold flex-1 border-[2px] border-neutral-800 h-12 px-4 rounded-2xl outline-none bg-[#121212] hover:bg-[#e8e6e3] hover:border-[#e8e6e3] hover:text-black
+                ${btnStyle ? "" : "brightness-50 pointer-events-none"}`}>Log In</button>
+                </div>
+              </div>
+              <div className="text-center text-sm mt-4">
+                <p>By signing in, you agree to our Terms and Privacy Policy.</p>
               </div>
             </div>
-            <div className="gap-1 mt-[2rem] flex flex-col">
-              <button type="submit" className="my-auto border-1 border-[#e8e6e3] text-lg px-[2rem] py-[1.3rem] rounded-xs hover:bg-[#e8e6e3] hover:text-black transition-all cursor-pointer">
-                Login
-              </button>
-            </div>
           </form>
-        </div>
-      </div>
+        </div >
+      </div >
     </>
   )
 }

@@ -17,8 +17,7 @@ const EmailVerification = () => {
                   onClick={() => navigate("/login")}>
                   log in</button>
                 your account.
-              </p>
-            }
+              </p>}
           </div>
         </div>
       </div>
