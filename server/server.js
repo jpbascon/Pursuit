@@ -80,9 +80,7 @@ app.post("/signup", async (req, res) => {
       verificationTokenExpiry: Date.now() + 24 * 60 * 60 * 1000
     });
     await newUser.save();
-    const verifyUrl = process.env.MODE === "production"
-      ? `https://pursuit-production.up.railway.app/verify-email?token=${encodeURIComponent(verificationToken)}&email=${encodeURIComponent(email)}`
-      : `http://localhost:5000/verify-email?token=${encodeURIComponent(verificationToken)}&email=${encodeURIComponent(email)}`;
+    const verifyUrl = `https://pursuit-production.up.railway.app/verify-email?token=${verificationToken}&email=${email}`
     await sendBrevoEmail({
       to: email,
       subject: "Pursuit - Verify Your Email",
@@ -100,8 +98,7 @@ app.post("/signup", async (req, res) => {
 })
 app.get("/verify-email", async (req, res) => {
   try {
-    const token = decodeURIComponent(req.query.token);
-    const email = decodeURIComponent(req.query.email);
+    const { email, token } = req.query;
     const user = await User.findOne({ email, verificationToken: token });
 
     if (!user) return res.status(400).json({ error: "Invalid or expired verification link" });
