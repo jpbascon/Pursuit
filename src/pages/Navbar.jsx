@@ -12,6 +12,7 @@ const Navbar = ({ setIsLoggedIn, isLoggedIn }) => {
       setIsLoggedIn(false);
       navigate("/");
     } catch (err) {
+      setIsLoggedIn(true);
       showAlert(err.response?.data?.error || "Logout failed");
     }
   }
@@ -32,19 +33,20 @@ const Navbar = ({ setIsLoggedIn, isLoggedIn }) => {
           </NavLink>}
         <div className="flex gap-8 justify-center items-center noto-font">
           {isLoggedIn ?
-            <div className="flex gap-6">
+            <div className="flex gap-3 text-sm">
               <button
-                onClick={() => { logout() }} // example logout
-                className="underline nav-link">
+                onClick={() => logout()}
+                className="border-[2px] border-[#b1afac] px-2 py-1 rounded-sm font-bold hover:text-black hover:bg-white hover:border-white welcome-buttons">
                 Logout
               </button>
             </div>
             :
-            <div className="flex gap-6">
-              <NavLink to="/signup" className="nav-link">Sign up</NavLink>
+            <div className="flex gap-3 items-center text-sm">
+              <NavLink to="/login" className="text-neutral-400 hover:text-neutral-100 transition-text duration-300 font-bold">Log In</NavLink>
+              <NavLink to="/signup" className="border-[2px] border-[#b1afac] px-2 py-1 rounded-sm font-bold hover:text-black hover:bg-white hover:border-white welcome-buttons">Sign up</NavLink>
             </div>}
         </div>
-      </div>
+      </div >
     </>
   )
 }

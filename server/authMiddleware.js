@@ -13,7 +13,6 @@ export const authMiddleware = (req, res, next) => {
   }
   try {
     const decoded = jwt.verify(token, JWT_SECRET);        // Checks the client's token and the created signature if it's valid for authentication
-    console.log("Token decoded:", decoded);
     req.user = decoded;                                   // Attach decoded user info to req, so routers can access req.user
     next();
   } catch (err) {

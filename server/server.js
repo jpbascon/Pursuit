@@ -14,6 +14,7 @@ import crypto from "crypto";                                          // Creates
 
 dotenv.config();                                                      // Load environment variables from .env file into process.env
 
+const isProduction = process.env.MODE === "production";
 const JWT_SECRET = process.env.JWT_SECRET;
 const PORT = Number(process.env.PORT) || 5000;
 const app = express();
@@ -43,7 +44,7 @@ const sendBrevoEmail = async ({ to, subject, html, text }) => {
   }
 }
 app.use(cors({
-  origin: ["https://pursuit-pi.vercel.app"],
+  origin: ["https://pursuit-pi.vercel.app", "http://localhost:5173"],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
@@ -125,9 +126,9 @@ app.post("/login", async (req, res) => {
       JWT_SECRET,
     );
     res.cookie("token", token, {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none"
+      httpOnly: isProduction ? "true" : "false",
+      secure: isProduction ? "true" : "false",
+      sameSite: isProduction ? "none" : "lax",
     });
     return res.json({ success: true, message: "Login successful" });
   } catch (err) {
@@ -174,9 +175,9 @@ app.post("/forgot-password", async (req, res) => {
     user.OTP = otp;
     user.OTPExpiry = Date.now() + 10 * 60 * 1000;
     res.cookie("resetData", JSON.stringify({ resetToken, email: user.email }), {
-      httpOnly: true,
-      secure: true,
-      sameSite: "none",
+      httpOnly: isProduction ? "true" : "false",
+      secure: isProduction ? "true" : "false",
+      sameSite: isProduction ? "none" : "lax",
       maxAge: 15 * 60 * 1000,
     });
     await sendBrevoEmail({
@@ -200,23 +201,34 @@ app.post("/verify-otp", async (req, res) => {
     if (!user) return res.status(400).json({ error: "Invalid or expired reset token" });
     const isValid = await bcrypt.compare(resetToken, user.resetToken);
     if (!isValid || Date.now() > user.resetTokenExpiry) return res.status(400).json({ error: "Invalid or expired reset token" });
-    const otp = validator.escape(req.body.otp?.trim());
-    if (!otp || user.OTP !== otp || Date.now() > user.OTPExpiry) return res.status(400).json({ error: "Invalid or expired OTP" });
 
+    let rawOtp = "";
+    if (Array.isArray(req.body.otp)) {
+      rawOtp = req.body.otp.join("");
+    } else if (typeof req.body.otp === "string") {
+      rawOtp = req.body.otp;
+    } else {
+      return res.status(400).json({ error: "OTP format invalid" });
+    }
+    const otp = validator.escape((rawOtp || "").trim());
+    if (!otp || user.OTP !== otp || Date.now() > user.OTPExpiry) return res.status(400).json({ error: "Invalid or expired OTP" });
     user.OTP = undefined;
     user.OTPExpiry = undefined;
     await user.save();
+
     res.json({ success: true, message: "OTP Verified" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-})
+});
 app.put("/reset-password", async (req, res) => {
   try {
     const password = req.body.password?.trim();
     const passwordConfirm = req.body.passwordConfirm?.trim();
     if (!password || !passwordConfirm) return res.status(400).json({ error: "All fields are required" });
     if (password !== passwordConfirm) return res.status(400).json({ error: "Passwords do not match" });
+    /* if (password !== ) */
+    if (password <= 8) return res.status(400).json({ error: "Password must be 8 characters long or more" });
     const resetData = req.cookies.resetData ? JSON.parse(req.cookies.resetData) : null;
     if (!resetData) return res.status(400).json({ error: "No reset token found" });
     const { resetToken, email } = resetData;

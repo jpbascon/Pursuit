@@ -43,7 +43,7 @@ function App() {
         <img
           src="/landingBg.jpg"
           alt="Background"
-          className="absolute inset-0 w-full h-full object-cover brightness-25 pointer-events-none" />
+          className="absolute inset-0 w-full h-full object-cover brightness-18 pointer-events-none z-1" />
         <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
         <main className="flex-grow">
           <Routes>
@@ -65,16 +65,11 @@ function App() {
             <Route path="/verify-email" element={<EmailVerification />}></Route>
           </Routes>
           <Analytics />
-          <div className="absolute bottom-[25%] right-0 z-100">
-            <div className={`px-10 py-8 border-1 border-r-0 border-[#e8e6e3] border-b-[#e8e6e3] rounded-tl-sm rounded-bl-sm roboto-font transition-all relative
-              ${alert ? "opacity-100" : "opacity-0"}`}>
-              <p className="text-base">{alertMessage}</p>
-              <button className="absolute top-2 right-2"
-                onClick={() => hideAlert()}>
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
-                  <path stroke="#fff" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m18 18l-6-6m0 0L6 6m6 6l6-6m-6 6l-6 6" />
-                </svg>
-              </button>
+          <div className="top-[6%] left-1/2 -translate-x-1/2 content-center absolute z-10000">
+            <div className={`py-2 px-4 border-[2px] border-[#e8e6e3] rounded-sm transition-all relative size-fit cursor-pointer hover:bg-[#e8e6e3] hover:text-black
+              ${alert ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+              onClick={() => hideAlert()}>
+              <p className="text-sm font-bold noto-font">{alertMessage}</p>
             </div>
           </div>
         </main >
