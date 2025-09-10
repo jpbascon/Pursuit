@@ -30,7 +30,7 @@ export default function Dashboard() {
     <>
       <div className="bg-[#121212] min-h-screen ">
         <div className="py-20 relative z-20">
-          <div className="gap-10 max-w-7xl mx-auto flex justify-center items-start relative z-10">
+          <div className="gap-10 max-w-7xl mx-auto flex justify-center items-stretch relative z-10">
             <div className="p-5 w-[300px] bg-neutral-900 rounded-sm border-[#3d3d3d] border-[2px]">
               <div className="flex flex-col">
                 <div className="flex justify-center">
@@ -64,8 +64,10 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="p-5 w-[300px] bg-neutral-900 rounded-md border-[#3d3d3d] border-[2px]">
-              <div className="flex gap-5 flex-col noto-font">
-                <button>Settings</button>
+              <div className="gap-5 flex flex-col noto-font">
+                <div className="flex-1">
+                  <button>Settings</button>
+                </div>
               </div>
             </div>
           </div>
