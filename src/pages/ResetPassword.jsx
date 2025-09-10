@@ -36,6 +36,10 @@ const ResetPassword = ({ }) => {
   })
   return (
     <>
+      <img
+        src="/landingBg.jpg"
+        alt="Background"
+        className="absolute inset-0 w-full h-full object-cover brightness-18 pointer-events-none z-1" />
       <div className="py-50 max-w-xl mx-auto min-h-screen">
         <div className={`gap-[5rem] flex flex-col items-start justify-center relative z-10 transition-opacity duration-500
           ${visible ? "opacity-100" : "opacity-0"}`}>

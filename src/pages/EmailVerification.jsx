@@ -7,17 +7,12 @@ const EmailVerification = () => {
   const navigate = useNavigate();
   return (
     <>
-      <div className="pt-15 max-w-7xl mx-auto">
+      <div className="pt-30 max-w-7xl mx-auto min-h-screen">
         <div className="flex flex-col gap-5 items-center relative z-20">
-          <h1 className="text-3xl">{status === "success" ? "Email Verified" : "Verification failed"}</h1>
+          <h1 className="text-4xl font-bold noto-font">{status === "success" ? "Email Verified" : "Verification failed"}</h1>
           <div>
-            {status === "success" &&
-              <p>Email Verified. You can now
-                <button className="underline"
-                  onClick={() => navigate("/login")}>
-                  log in</button>
-                your account.
-              </p>}
+            <p className="roboto-font text-zinc-400">You can now&nbsp;<button onClick={() => navigate("/login")}
+              className="underline font-bold text-[#e8e6e3] hover:brightness-70 transition-brightness duration-200">Log In</button> your account.</p>
           </div>
         </div>
       </div>

@@ -35,6 +35,10 @@ const Signup = () => {
   }, [formData])
   return (
     <>
+      <img
+        src="/landingBg.jpg"
+        alt="Background"
+        className="absolute inset-0 w-full h-full object-cover brightness-18 pointer-events-none z-1" />
       <div className="py-40 max-w-xl mx-auto min-h-screen">
         <div className={`flex flex-col items-center justify-center relative z-10 transition-opacity duration-500
           ${visible ? "opacity-100" : "opacity-0"}`}>

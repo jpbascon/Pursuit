@@ -51,6 +51,13 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 app.use("/a", userRoutes);
+const passwordStrength = (password) => {
+  const hasUpperCase = /[A-Z]/.test(password);
+  const hasNumber = /\d/.test(password);
+  const hasSpecialChar = /[^/A-Za-z0-9]/.test(password);
+
+  return hasUpperCase && hasNumber && hasSpecialChar;
+}
 app.post("/signup", async (req, res) => {
   try {
     const name = validator.escape(req.body.name?.trim());
@@ -59,11 +66,13 @@ app.post("/signup", async (req, res) => {
     const passwordConfirm = req.body.passwordConfirm?.trim();
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     const existingUser = await User.findOne({ email });
+    const isLongEnough = password.length >= 8;
 
     if (!email || !password) return res.status(400).json({ error: "All fields are required" });
     if (password !== passwordConfirm) return res.status(400).json({ error: "Passwords do not match" });
     if (!emailRegex.test(email)) return res.status(400).json({ error: "Invalid email format" });
-    if (password.length < 8) return res.status(400).json({ error: "Password must be at least 8 characters long" });
+    if (!isLongEnough) return res.status(400).json({ error: "Password must be at least 8 characters long" });
+    if (!passwordStrength(password)) return res.status(400).json({ error: "Password must contain an upper case letter, a number, and a special character" })
     if (existingUser) return res.status(409).json({ error: "Email already registered" });
 
     const salt = await bcrypt.genSalt(10);
@@ -225,10 +234,11 @@ app.put("/reset-password", async (req, res) => {
   try {
     const password = req.body.password?.trim();
     const passwordConfirm = req.body.passwordConfirm?.trim();
+    const isLongEnough = password.length >= 8;
     if (!password || !passwordConfirm) return res.status(400).json({ error: "All fields are required" });
     if (password !== passwordConfirm) return res.status(400).json({ error: "Passwords do not match" });
-    /* if (password !== ) */
-    if (password <= 8) return res.status(400).json({ error: "Password must be 8 characters long or more" });
+    if (!isLongEnough) return res.status(400).json({ error: "Password must be 8 characters long or more" });
+    if (!passwordStrength(password)) return res.status(400).json({ error: "Password must contain an upper case letter, a number, and a special character" })
     const resetData = req.cookies.resetData ? JSON.parse(req.cookies.resetData) : null;
     if (!resetData) return res.status(400).json({ error: "No reset token found" });
     const { resetToken, email } = resetData;

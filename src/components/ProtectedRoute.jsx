@@ -16,7 +16,13 @@ const ProtectedRoute = ({ children }) => {
     };
     checkAuth();
   }, []);
-  if (isAuth === null) return <p className="text-black mt-[10%] text-7xl bold">Loading...</p>;
+  if (isAuth === null) return <div>
+    <img
+      src="/landingBg.jpg"
+      alt="Background"
+      className="absolute inset-0 w-full h-full object-cover brightness-18 pointer-events-none z-1" />
+    <p className="pt-40 text-4xl bold">Loading...</p>
+  </div>;
   return isAuth ? children : <Navigate to="/" />
 }
 export default ProtectedRoute;

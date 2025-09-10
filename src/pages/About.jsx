@@ -39,7 +39,11 @@ const About = () => {
   }, [])
   return (
     <>
-      <div className="py-40 min-h-screen">
+      <img
+        src="/landingBg.jpg"
+        alt="Background"
+        className="absolute inset-0 w-full h-full object-cover brightness-18 pointer-events-none z-1" />
+      <div className="py-40 min-h-screen relative">
         <div className="gap-10 flex items-center max-w-7xl mx-auto relative z-10">
           <div className="flex items-start w-full">
             <div className="gap-10 flex flex-col w-full size-fit">
@@ -61,7 +65,7 @@ const About = () => {
           <div className="flex justify-center w-full">
             <img
               src="/jasonb.png"
-              alt="Jason's selfie looking away from the camera"
+              alt="Jason's graduation picture"
               className={`w-[430px] h-[430px] bg-neutral-950 border-2 border-[#e8e6e3] p-10 object-cover brightness-85 pointer-events-none transition duration-800
                 ${image ? "opacity-100 img" : "opacity-0"}`} />
           </div>

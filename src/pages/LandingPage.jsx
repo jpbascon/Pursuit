@@ -49,6 +49,10 @@ const LandingPage = () => {
 
   return (
     <>
+      <img
+        src="/landingBg.jpg"
+        alt="Background"
+        className="absolute inset-0 w-full h-full object-cover brightness-18 pointer-events-none z-1" />
       <div className="py-45 min-h-screen">
         <div className="max-w-7xl mx-auto flex flex-col gap-25 items-start relative z-10">
           <div className="flex flex-col">

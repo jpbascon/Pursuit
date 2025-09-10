@@ -39,11 +39,7 @@ function App() {
   }, [])
   return (
     <>
-      <div className="flex flex-col min-h-screen relative">
-        <img
-          src="/landingBg.jpg"
-          alt="Background"
-          className="absolute inset-0 w-full h-full object-cover brightness-18 pointer-events-none z-1" />
+      <div className="flex flex-col min-h-screen">
         <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} />
         <main className="flex-grow">
           <Routes>
@@ -65,7 +61,7 @@ function App() {
             <Route path="/verify-email" element={<EmailVerification />}></Route>
           </Routes>
           <Analytics />
-          <div className="top-[6%] left-1/2 -translate-x-1/2 content-center absolute z-10000">
+          <div className="top-[6%] left-1/2 -translate-x-1/2 content-center fixed z-10000">
             <div className={`py-2 px-4 border-[2px] border-[#e8e6e3] rounded-sm transition-all relative size-fit cursor-pointer hover:bg-[#e8e6e3] hover:text-black
               ${alert ? "opacity-100" : "opacity-0 pointer-events-none"}`}
               onClick={() => hideAlert()}>
