@@ -1,6 +1,6 @@
 import { Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import api from "../api.js";
+import { authCheck } from "../api";
 
 const ProtectedRoute = ({ children }) => {
   const [isAuth, setIsAuth] = useState(null);
@@ -8,7 +8,7 @@ const ProtectedRoute = ({ children }) => {
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        await api.get("/a/dashboard");
+        await authCheck();
         setIsAuth(true);
       } catch {
         setIsAuth(false);
