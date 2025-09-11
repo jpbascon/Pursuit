@@ -1,6 +1,7 @@
 import { useNavigate, NavLink } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { loginUser } from "../api.js";
+import { getProfile } from '../api.js';
 import { useAlert } from '../context/Alert.jsx';
 
 const Login = ({ setIsLoggedIn }) => {
@@ -22,6 +23,19 @@ const Login = ({ setIsLoggedIn }) => {
       showAlert(err.response?.data?.error || "Something went wrong");
     }
   }
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const res = await getProfile();
+        showAlert(res.data.message);
+        setIsLoggedIn(true);
+        navigate('/dashboard');
+      } catch (err) {
+        console.log("No session found");
+      }
+    }
+    checkAuth();
+  }, [])
   useEffect(() => {
     const timeout = setTimeout(() => {
       setVisible(true);

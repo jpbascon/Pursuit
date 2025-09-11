@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useAlert } from "../context/Alert";
+import { getProfile } from "../api";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 
 export default function Dashboard({ createGoal, setCreateGoal }) {
-  const API_URL = import.meta.env.MODE === "production" ? "https://pursuit-production.up.railway.app/me" : "http://localhost:5000/me"
   const { showAlert } = useAlert;
   const [startDate, setStartDate] = useState(new Date());
   let [name, setName] = useState("");
@@ -12,13 +12,8 @@ export default function Dashboard({ createGoal, setCreateGoal }) {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch(API_URL, {
-          method: "GET",
-          credentials: "include",
-        })
-        if (!res.ok) showAlert("Failed to fetch user");
-        const data = await res.json();
-        setName(data.name);
+        const res = await getProfile();
+        setName(res.data.name);
       } catch (err) {
         showAlert(
           err.response?.data?.error ||

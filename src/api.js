@@ -6,14 +6,13 @@ const api = axios.create({
   withCredentials: true
 })
 
-export const registerUser = (userData) => api.post("/signup", userData);
-export const verifyEmail = () => api.get("/verify",);
-export const loginUser = (formData) => api.post("/login", formData)
-export const getProfile = () => api.get("a/profile");
-export const getDashboard = () => api.get("a/dashboard");
+export const registerUser = (userData) => api.post("a/signup", userData);
+export const verifyEmail = () => api.get("a/verify",);
+export const loginUser = (formData) => api.post("a/login", formData)
+export const getProfile = () => api.get("a/me");
 export const logoutUser = () => api.post("a/logout");
-export const contact = (formData) => api.post("/contact", formData);
-export const forgotPassword = (email) => api.post("/forgot-password", { email });
-export const verifyOtp = (otpString) => api.post("/verify-otp", { otp: otpString });
-export const resetPassword = (password, passwordConfirm) => api.put("/reset-password", { password, passwordConfirm });
+export const contact = (formData) => api.post("a/contact", formData);
+export const forgotPassword = (email) => api.post("a/forgot-password", { email });
+export const verifyOtp = (otpString) => api.post("a/verify-otp", { otp: otpString });
+export const resetPassword = (password, passwordConfirm) => api.put("a/reset-password", { password, passwordConfirm });
 export default api;

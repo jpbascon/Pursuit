@@ -12,6 +12,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import OTP from './pages/OTP';
 import ResetPassword from './pages/ResetPassword';
 import EmailVerification from './pages/EmailVerification';
+import { getProfile } from './api';
 import { Analytics } from "@vercel/analytics/react"
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -22,17 +23,14 @@ function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [createGoal, setCreateGoal] = useState(false);
   const navigate = useNavigate();
-  const API_URL = import.meta.env.MODE === "production" ? "https://pursuit-production.up.railway.app/me" : "http://localhost:5000/me"
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const res = await fetch(API_URL, { credentials: "include", })
-        if (!res.ok) { setIsLoggedIn(false); }
-        const data = await res.json();
-        if (data && data.email) { setIsLoggedIn(true); navigate("/dashboard"); }
+        await getProfile();
+        setIsLoggedIn(true);
+        navigate("/dashboard");
       } catch (err) {
-        console.error("Authentication check failed", err);
         setIsLoggedIn(false);
       }
     }
@@ -40,32 +38,34 @@ function App() {
   }, [])
   return (
     <>
-      <div className="flex flex-col min-h-screen relative">
+      <div className="flex flex-col min-h-screen relative w-full">
         <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} createGoal={createGoal} setCreateGoal={setCreateGoal} />
-        <Routes>
-          <Route path="/" element={<LandingPage />}></Route>
-          <Route path="/about" element={<About />}></Route>
-          <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />}></Route>
-          <Route path="/signup" element={<Signup />}></Route>
-          <Route path="/contact" element={<Contact />}></Route>
-          <Route path="/profile" element={<Profile />}></Route>
-          <Route path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Dashboard setIsLoggedIn={setIsLoggedIn} createGoal={createGoal} setCreateGoal={setCreateGoal} />
-              </ProtectedRoute>}>
-          </Route>
-          <Route path="/forgot-password" element={<ForgotPassword />}></Route>
-          <Route path="/otp" element={<OTP />}></Route>
-          <Route path="/reset-password" element={<ResetPassword />}></Route>
-          <Route path="/verify-email" element={<EmailVerification />}></Route>
-        </Routes>
-        <Analytics />
-        <div className="top-[6%] left-1/2 -translate-x-1/2 content-center fixed z-10000">
-          <div className={`py-2 px-4 border-[2px] border-[#e8e6e3] rounded-sm transition-all relative size-fit cursor-pointer hover:bg-[#e8e6e3] hover:text-black
-              ${alert ? "opacity-100" : "opacity-0 pointer-events-none"}`}
-            onClick={() => hideAlert()}>
-            <p className="text-sm font-bold noto-font">{alertMessage}</p>
+        <div className="flex-grow">
+          <Routes>
+            <Route path="/" element={<LandingPage />}></Route>
+            <Route path="/about" element={<About />}></Route>
+            <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />}></Route>
+            <Route path="/signup" element={<Signup />}></Route>
+            <Route path="/contact" element={<Contact />}></Route>
+            <Route path="/profile" element={<Profile />}></Route>
+            <Route path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard setIsLoggedIn={setIsLoggedIn} createGoal={createGoal} setCreateGoal={setCreateGoal} />
+                </ProtectedRoute>}>
+            </Route>
+            <Route path="/forgot-password" element={<ForgotPassword />}></Route>
+            <Route path="/otp" element={<OTP />}></Route>
+            <Route path="/reset-password" element={<ResetPassword />}></Route>
+            <Route path="/verify-email" element={<EmailVerification />}></Route>
+          </Routes>
+          <Analytics />
+          <div className="top-[6%] left-1/2 -translate-x-1/2 content-center fixed z-10000">
+            <div className={`py-2 px-4 border-[2px] border-[#e8e6e3] rounded-sm transition-all relative size-fit cursor-pointer hover:bg-[#e8e6e3] hover:text-black
+                ${alert ? "opacity-100" : "opacity-0 pointer-events-none"}`}
+              onClick={() => hideAlert()}>
+              <p className="text-sm font-bold noto-font">{alertMessage}</p>
+            </div>
           </div>
         </div>
         <Footer createGoal={createGoal} setCreateGoal={setCreateGoal} />
