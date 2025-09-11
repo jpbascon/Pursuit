@@ -169,14 +169,15 @@ button {
 .footer-link::after {
   position: absolute;
   content: "";
-  bottom: 0;
+  bottom: -2px;
   left: 0;
   width: 100%;
   height: 0;
-  background-color: rgb(31, 31, 31);
+  background-color: #121212;
   transition: height .18s ease-in-out;
+  border-radius: 1px;
 }
 
 .footer-link:hover::after {
-  height: 3px;
+  height: 2.7px;
 }

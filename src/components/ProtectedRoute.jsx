@@ -16,7 +16,8 @@ const ProtectedRoute = ({ children }) => {
     };
     checkAuth();
   }, []);
-  if (isAuth === null) return <div>
+  if (isAuth === null) return
+  <div>
     <img
       src="/landingBg.jpg"
       alt="Background"

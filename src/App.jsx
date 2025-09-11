@@ -68,7 +68,7 @@ function App() {
             </div>
           </div>
         </div>
-        <Footer createGoal={createGoal} setCreateGoal={setCreateGoal} />
+        <Footer createGoal={createGoal} setCreateGoal={setCreateGoal} isLoggedIn={isLoggedIn} />
       </div >
     </>
   )

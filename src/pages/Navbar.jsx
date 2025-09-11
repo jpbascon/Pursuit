@@ -11,7 +11,9 @@ const Navbar = ({ setIsLoggedIn, isLoggedIn, createGoal, setCreateGoal }) => {
       showAlert(res.data.message);
       setIsLoggedIn(false);
       navigate("/");
+      console.log(isLoggedIn);
     } catch (err) {
+      console.log(isLoggedIn);
       setIsLoggedIn(true);
       showAlert(err.response?.data?.error || "Logout failed");
     }
