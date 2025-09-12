@@ -78,6 +78,7 @@ router.post("/signup", async (req, res) => {
     })
     res.json({ success: true, message: "Signup successful! A verification link is sent to your inbox." });
   } catch (err) {
+    console.error(err);
     res.status(400).json({ error: err.message });
   }
 })
@@ -92,9 +93,10 @@ router.get("/verify-email", async (req, res) => {
     user.verificationToken = undefined;
     user.verificationTokenExpiry = undefined;
     await user.save();
-    return res.redirect("https://pursuit-pi.vercel.app/verify-email?status=success");
+    res.redirect("https://pursuit-pi.vercel.app/verify-email?status=success");
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    console.error(err);
+    res.status(500).json({ error: err.message });
   }
 })
 router.post("/login", async (req, res) => {
