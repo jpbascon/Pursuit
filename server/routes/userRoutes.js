@@ -65,7 +65,7 @@ router.post("/signup", async (req, res) => {
       verificationTokenExpiry: Date.now() + 24 * 60 * 60 * 1000
     });
     await newUser.save();
-    const verifyUrl = `https://pursuit-production.up.railway.app/verify-email?token=${verificationToken}&email=${email}`
+    const verifyUrl = `https://pursuit-production.up.railway.app/a/verify-email?token=${verificationToken}&email=${email}`;
     await sendBrevoEmail({
       to: email,
       subject: "Pursuit - Verify Your Email",
