@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom';
 
-const Footer = ({ createGoal, setCreateGoal, isLoggedIn }) => {
+const Footer = ({ createGoal, setCreateGoal }) => {
   return (
     <>
       <div onClick={() => { setCreateGoal(false) }}>

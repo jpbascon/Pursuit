@@ -16,4 +16,7 @@ export const contact = (formData) => api.post("a/contact", formData);
 export const forgotPassword = (email) => api.post("a/forgot-password", { email });
 export const verifyOtp = (otpString) => api.post("a/verify-otp", { otp: otpString });
 export const resetPassword = (password, passwordConfirm) => api.put("a/reset-password", { password, passwordConfirm });
+
+export const goals = (data) => api.post("a/goals", data);
+export const userGoalCheck = () => api.get("a/user-goal-check");
 export default api;

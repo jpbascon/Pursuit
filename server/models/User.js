@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema(       // Define the schema (structure/blueprint) for a "User" document
+const userSchema = new mongoose.Schema(
   {
     name: {
       type: String,
@@ -32,5 +32,5 @@ const userSchema = new mongoose.Schema(       // Define the schema (structure/bl
   { timestamps: true }
 );
 
-const User = mongoose.model("User", userSchema);      // Create a Mongoose model called "User" based on the schema (userSchema)
+const User = mongoose.model("User", userSchema);
 export default User;

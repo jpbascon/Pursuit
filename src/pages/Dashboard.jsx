@@ -1,29 +1,25 @@
+import GoalOverlay from "./GoalOverlay";
 import { useEffect, useState } from "react";
-import { useAlert } from "../context/Alert";
-import { getProfile } from "../api";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import { useGoal } from "../hooks/useGoals";
+import { fetchUser } from "../hooks/fetchUser";
 
 export default function Dashboard({ createGoal, setCreateGoal }) {
-  const { showAlert } = useAlert;
+  const [inputs, setInputs] = useState([{ id: Date.now(), value: "" }]);
+  const [frequency, setFrequency] = useState("");
+  const [category, setCategory] = useState("");
+  const [goalTitle, setGoalTitle] = useState("");
   const [startDate, setStartDate] = useState(new Date());
-  let [name, setName] = useState("");
+  const { goals, refreshGoals } = useGoal();
+  const { name } = fetchUser();
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await getProfile();
-        setName(res.data.name);
-      } catch (err) {
-        showAlert(
-          err.response?.data?.error ||
-          err.message ||
-          "Something went wrong"
-        );
-      }
+    if (!createGoal) {
+      setInputs([{ id: Date.now(), value: "", locked: false }]);
+      setCategory("");
+      setFrequency("");
+      setGoalTitle("");
     }
-    fetchUser();
-  }, [])
+  }, [createGoal]);
   return (
     <>
       <div className="bg-[#121212] min-h-screen relative">
@@ -59,15 +55,34 @@ export default function Dashboard({ createGoal, setCreateGoal }) {
                   </div>
                 </div>
               </div>
-              <div className="bg-neutral-900 w-[500px] rounded-md border-[#3d3d3d] border-[2px]">
-                <div className="p-5 gap-2 flex items-center noto-font">
-                  <div className="flex-1">
-                    <p>No recent activity</p>
+              <div className="flex-1 flex flex-col gap-5">
+                <div className="bg-neutral-900 rounded-md border-[#3d3d3d] border-[2px]">
+                  <div className="p-5 gap-2 flex items-center justify-end noto-font">
+                    <button
+                      className="p-2 flex items-center text-center gap-1 font-bold text-sm rounded-sm border-[#3d3d3d] border-[2px] hover:bg-white hover:border-white hover:text-black transition-all duration-250"
+                      onClick={() => { setCreateGoal(true) }}>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24">
+                        <path stroke="currentColor" strokeLinecap="round" strokeWidth="3" d="M12 20v-8m0 0V4m0 8h8m-8 0H4" /></svg>
+                      Add Goal</button>
                   </div>
-                  <button
-                    className="px-4 py-2 font-bold rounded-sm border-[#3d3d3d] border-[2px] hover:bg-white hover:border-white hover:text-black transition-all duration-250"
-                    onClick={() => { setCreateGoal(true) }}>
-                    Create a goal</button>
+                </div>
+                <div className="bg-neutral-900 rounded-md border-[#3d3d3d] border-[2px]">
+                  <div className="p-5 gap-1 flex flex-col items-start noto-font">
+                    {goals.length === 0 ? (
+                      <p>You currently have no activity</p>
+                    ) : (
+                      goals.map((goal, idx) => (
+                        <div key={idx} className="mb-4">
+                          <p className="font-bold">{goal.title}</p>
+                          <ul className="list-disc list-inside">
+                            {goal.milestones.map((m, i) => (
+                              <li key={i}>{m}</li>
+                            ))}
+                          </ul>
+                        </div>
+                      ))
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="p-5 w-[300px] bg-neutral-900 rounded-md border-[#3d3d3d] border-[2px]">
@@ -78,45 +93,20 @@ export default function Dashboard({ createGoal, setCreateGoal }) {
             </div>
           </div>
         </main>
-        <div className={`absolute top-[20%] left-1/2 -translate-x-1/2 transition-opacity duration-200 z-20 ${createGoal ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
-          <div className="p-10 bg-neutral-900 w-[500px] rounded-lg">
-            <div className="flex flex-col gap-5">
-              <form>
-                <div className="flex flex-col gap-8 text-neutral-400">
-                  <div className="flex items-center justify-between noto-font">
-                    <p>Select a category:</p>
-                    <select className="px-3 py-2 bg-neutral-900 border-[2px] border-neutral-700 rounded">
-                      <option value="">Select an option</option>
-                      <option value="health">Health</option>
-                      <option value="career">Career</option>
-                      <option value="education">Education</option>
-                    </select>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <p>Goal:</p>
-                    <textarea
-                      className="px-2 py-1 resize-none border-[#3d3d3d] border-[2px] outline-none rounded-sm focus:border-[#e8e6e3] transition-all"
-                      rows="1"
-                    />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="flex-1">
-                      <p>Until:</p>
-                    </div>
-                    <DatePicker
-                      selected={startDate}
-                      onChange={(date) => setStartDate(date)}
-                      className="px-2 py-1 bg-neutral-900 text-neutral-400 border-2 border-neutral-700 rounded focus:outline-none focus:border-[#e8e6e3] transition-all"
-                    />
-                  </div>
-                  <button className="py-3 mt-5 border-[2px] roboto-font font-bold border-neutral-700 rounded-sm hover:bg-white hover:border-white hover:text-black welcome-buttons">
-                    Pursuit
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
+        <GoalOverlay
+          createGoal={createGoal}
+          setCreateGoal={setCreateGoal}
+          goalTitle={goalTitle}
+          setGoalTitle={setGoalTitle}
+          category={category}
+          setCategory={setCategory}
+          frequency={frequency}
+          setFrequency={setFrequency}
+          inputs={inputs}
+          setInputs={setInputs}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          refreshGoals={refreshGoals} />
       </div>
     </>
   )

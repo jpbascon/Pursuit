@@ -7,6 +7,10 @@ const EmailVerification = () => {
   const navigate = useNavigate();
   return (
     <>
+      <img
+        src="/landingBg.jpg"
+        alt="Background"
+        className="absolute inset-0 w-full h-full object-cover brightness-18 pointer-events-none z-1" />
       <div className="pt-30 max-w-7xl mx-auto min-h-screen">
         <div className="flex flex-col gap-5 items-center relative z-20">
           <h1 className="text-4xl font-bold noto-font">{status === "success" ? "Email Verified" : "Verification failed"}</h1>

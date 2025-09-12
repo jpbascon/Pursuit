@@ -1,6 +1,7 @@
 import express from "express";
 import { authMiddleware } from "../authMiddleware.js";
 import User from "../models/User.js";
+import Goal from "../models/Goal.js";
 import bcrypt from "bcrypt";
 import validator from "validator";
 import jwt from "jsonwebtoken";
@@ -78,7 +79,6 @@ router.post("/signup", async (req, res) => {
     })
     res.json({ success: true, message: "Signup successful! A verification link is sent to your inbox." });
   } catch (err) {
-    console.error(err);
     res.status(400).json({ error: err.message });
   }
 })
@@ -95,7 +95,6 @@ router.get("/verify-email", async (req, res) => {
     await user.save();
     res.redirect("https://pursuit-pi.vercel.app/verify-email?status=success");
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: err.message });
   }
 })
@@ -230,7 +229,7 @@ router.get("/me", authMiddleware, async (req, res) => {
   try {
     const user = await User.findById(req.user.id).select("name email");
     if (!user) return res.status(404).json({ error: "User not found" });
-    res.json({ name: user.name, email: user.email, message: "Session restored" });
+    res.json({ id: user._id, name: user.name, email: user.email, message: "Session restored" });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -265,6 +264,44 @@ router.post("/contact", async (req, res) => {
       details: err.message,
       stack: err.stack
     });
+  }
+})
+router.post("/goals", authMiddleware, async (req, res) => {
+  try {
+    const { goalTitle, category, frequency, deadline, milestones } = req.body;
+    if (!goalTitle || !category) return res.status(400).json({ error: "Missing required fields!" });
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) return res.status(400).json({ error: "User not found" });
+    const existingGoal = await Goal.findOne({ user: req.user.id, title: goalTitle });
+    if (existingGoal) return res.status(400).json({ error: "Goal already created" });
+
+    const newGoal = new Goal({
+      user: user.id,
+      title: goalTitle,
+      category,
+      frequency,
+      deadline: new Date(deadline),
+      milestones
+    })
+    await newGoal.save();
+    res.json({ success: true, message: "Goal created" });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+})
+router.get("/user-goal-check", authMiddleware, async (req, res) => {
+  try {
+    const goals = await Goal.find({ user: req.user.id });
+    if (!goals || goals.length === 0) return res.status(400).json({ success: false, error: "You currently have no ongoing activity" });
+    res.json({
+      success: true,
+      goals: goals.map(g => ({
+        title: g.title,
+        milestones: g.milestones || []
+      }))
+    });
+  } catch (err) {
+    res.json({ success: false, error: err.message });
   }
 })
 export default router;
