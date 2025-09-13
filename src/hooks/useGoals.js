@@ -12,7 +12,6 @@ export function useGoal() {
       console.error(err);
     }
   };
-  fetchGoals();
   useEffect(() => {
     fetchGoals();
   }, [])
