@@ -14,7 +14,7 @@ const goalSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ["health", "career", "education"],
+      enum: ["health & fitness", "career development", "personal growth"],
       required: true
     },
     frequency: {

@@ -68,21 +68,21 @@ const Login = ({ setIsLoggedIn }) => {
                 <div className="flex flex-col gap-1 text-sm">
                   <label to="email">Email</label>
                   <input name="email"
-                    className="border-[2px] border-neutral-800 h-12 px-4 rounded-sm outline-none bg-[#121212] text-[#e8e6e3] noto-font"
+                    className="border-[2px] border-neutral-800 h-12 px-4 rounded-sm outline-none text-[#e8e6e3] noto-font focus:border-[#e8e6e3] transition-border duration-200"
                     onChange={handleChange} />
                 </div>
                 <div className="flex flex-col gap-1 text-sm">
                   <div className="flex">
                     <label to="password" className="flex-1">Password</label>
-                    <NavLink to="/forgot-password" className="font-bold noto-font text-[#e8e6e3] hover:brightness-70 transition-brightness duration-200">Forgot Password</NavLink>
+                    <NavLink to="/forgot-password" className="font-bold noto-font text-[#e8e6e3] hover:brightness-70 transition-brightness duration-200 outline-none">Forgot Password</NavLink>
                   </div>
                   <input name="password"
                     type="password"
                     placeholder="••••••••••••"
-                    className="border-[2px] border-neutral-800 h-12 px-4 rounded-sm outline-none bg-[#121212] text-[#e8e6e3] noto-font"
+                    className="border-[2px] border-neutral-800 h-12 px-4 rounded-sm outline-none text-[#e8e6e3] noto-font focus:border-[#e8e6e3] transition-border duration-200"
                     onChange={handleChange} />
                   <div className="flex w-full mt-4 noto-font">
-                    <button className={`welcome-buttons text-sm font-bold flex-1 border-[2px] border-neutral-800 h-12 px-4 rounded-sm outline-none bg-[#121212] hover:bg-[#e8e6e3] hover:border-[#e8e6e3] hover:text-black
+                    <button className={`welcome-buttons text-sm font-bold flex-1 border-[2px] border-neutral-800 bg-[#121212] h-12 px-4 rounded-sm outline-none hover:bg-[#e8e6e3] hover:border-[#e8e6e3] hover:text-black
                   ${btnStyle ? "" : "brightness-50 pointer-events-none"}`}>Log In</button>
                   </div>
                 </div>

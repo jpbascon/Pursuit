@@ -2,11 +2,12 @@ import { useEffect, useState } from "react";
 import { getProfile } from "../api";
 import { useAlert } from "../context/Alert";
 
-export function fetchUser() {
+export function useFetchUser(isLoggedIn) {
   const { showAlert } = useAlert;
   let [name, setName] = useState("");
 
   useEffect(() => {
+    if (!isLoggedIn) return setName("");
     const fetchUser = async () => {
       try {
         const res = await getProfile();
@@ -20,7 +21,7 @@ export function fetchUser() {
       }
     }
     fetchUser();
-  }, [])
+  }, [isLoggedIn])
 
   return { name }
 }

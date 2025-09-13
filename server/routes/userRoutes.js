@@ -297,7 +297,10 @@ router.get("/user-goal-check", authMiddleware, async (req, res) => {
       success: true,
       goals: goals.map(g => ({
         title: g.title,
-        milestones: g.milestones || []
+        milestones: g.milestones || [],
+        category: g.category,
+        frequency: g.frequency,
+        progress: g.progress
       }))
     });
   } catch (err) {

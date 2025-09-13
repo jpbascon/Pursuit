@@ -55,13 +55,13 @@ const Contact = () => {
                 <div className="flex flex-col gap-1 text-sm">
                   <label to="email">Email</label>
                   <input name="email"
-                    className="border-[2px] border-neutral-800 h-12 px-4 rounded-sm outline-none bg-[#121212] text-[#e8e6e3] noto-font"
+                    className="border-[2px] border-neutral-800 h-12 px-4 rounded-sm outline-none text-[#e8e6e3] noto-font focus:border-[#e8e6e3] transition-border duration-200"
                     onChange={handleChange} />
                 </div>
                 <div className="flex flex-col gap-1 text-sm">
                   <label to="subject">Subject</label>
                   <input name="subject"
-                    className="border-[2px] border-neutral-800 h-12 px-4 rounded-sm outline-none bg-[#121212] text-[#e8e6e3] noto-font"
+                    className="border-[2px] border-neutral-800 h-12 px-4 rounded-sm outline-none text-[#e8e6e3] noto-font focus:border-[#e8e6e3] transition-border duration-200"
                     onChange={handleChange} />
                 </div>
                 <div className="flex flex-col gap-1 text-sm">
@@ -69,12 +69,12 @@ const Contact = () => {
                   <textarea
                     name="message"
                     rows="4"
-                    className="border-[2px] border-neutral-800 p-4 rounded-sm outline-none bg-[#121212] text-[#e8e6e3] noto-font resize-none"
+                    className="border-[2px] border-neutral-800 p-4 rounded-sm outline-none text-[#e8e6e3] noto-font resize-none focus:border-[#e8e6e3] transition-border duration-200"
                     onChange={handleChange} />
                 </div>
                 <div className="flex flex-col gap-1 text-sm">
                   <div className="flex w-full mt-4 noto-font">
-                    <button className={`welcome-buttons text-sm font-bold flex-1 border-[2px] border-neutral-800 h-12 px-4 rounded-sm outline-none bg-[#121212] hover:bg-[#e8e6e3] hover:border-[#e8e6e3] hover:text-black
+                    <button className={`welcome-buttons text-sm font-bold flex-1 border-[2px] border-neutral-800 bg-[#121212] h-12 px-4 rounded-sm outline-none hover:bg-[#e8e6e3] hover:border-[#e8e6e3] hover:text-black
                   ${btnStyle ? "" : "brightness-50 pointer-events-none"}`}>Submit</button>
                   </div>
                 </div>

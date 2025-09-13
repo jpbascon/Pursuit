@@ -55,14 +55,14 @@ const ResetPassword = ({ }) => {
                   <label to="password">Password</label>
                   <input name="password"
                     type="password"
-                    className="border-[2px] border-neutral-800 h-12 px-4 rounded-sm outline-none bg-[#121212] text-[#e8e6e3] noto-font"
+                    className="border-[2px] border-neutral-800 h-12 px-4 rounded-sm outline-none text-[#e8e6e3] noto-font focus:border-[#e8e6e3] transition-border duration-200"
                     onChange={handleChange} />
                 </div>
                 <div className="flex flex-col gap-1 text-sm">
                   <label to="passwordConfirm">Confirm Password</label>
                   <input name="passwordConfirm"
                     type="password"
-                    className="border-[2px] border-neutral-800 h-12 px-4 rounded-sm outline-none bg-[#121212] text-[#e8e6e3] noto-font"
+                    className="border-[2px] border-neutral-800 h-12 px-4 rounded-sm outline-none text-[#e8e6e3] noto-font focus:border-[#e8e6e3] transition-border duration-200"
                     onChange={handleChange} />
                 </div>
                 <div className="flex flex-col gap-1 text-sm">

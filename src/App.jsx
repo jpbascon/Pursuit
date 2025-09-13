@@ -8,6 +8,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import LandingPage from './pages/LandingPage';
 import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
+import Sidebar from './pages/Sidebar';
 import ProtectedRoute from './components/ProtectedRoute';
 import OTP from './pages/OTP';
 import ResetPassword from './pages/ResetPassword';
@@ -17,6 +18,7 @@ import { Analytics } from "@vercel/analytics/react"
 import { Routes, Route, useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAlert } from './context/Alert';
+import GoalOverlay from './pages/GoalOverlay';
 
 function App() {
   const { alert, alertMessage, hideAlert, showAlert } = useAlert();
@@ -51,6 +53,7 @@ function App() {
             <Route path="/dashboard"
               element={
                 <ProtectedRoute>
+                  <Sidebar setIsLoggedIn={setIsLoggedIn} createGoal={createGoal} />
                   <Dashboard setIsLoggedIn={setIsLoggedIn} createGoal={createGoal} setCreateGoal={setCreateGoal} />
                 </ProtectedRoute>}>
             </Route>
@@ -68,7 +71,7 @@ function App() {
             </div>
           </div>
         </div>
-        <Footer createGoal={createGoal} setCreateGoal={setCreateGoal} isLoggedIn={isLoggedIn} />
+        <Footer isLoggedIn={isLoggedIn} />
       </div >
     </>
   )
