@@ -1,29 +1,29 @@
-import { Navigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { authCheck } from "../api";
+import { Navigate, Outlet, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
 
-const ProtectedRoute = ({ children }) => {
-  const [isAuth, setIsAuth] = useState(null);
+const ProtectedRoute = ({ isLoggedIn }) => {
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        await authCheck();
-        setIsAuth(true);
-      } catch {
-        setIsAuth(false);
-      }
-    };
-    checkAuth();
-  }, []);
-  if (isAuth === null) return
-  <div>
-    <img
-      src="/landingBg.jpg"
-      alt="Background"
-      className="absolute inset-0 w-full h-full object-cover brightness-18 pointer-events-none z-1" />
-    <p className="pt-40 text-4xl bold">Loading...</p>
-  </div>;
-  return isAuth ? children : <Navigate to="/" />
-}
+    if (isLoggedIn && window.location.pathname === "/") {
+      navigate("/dashboard", { replace: true });
+    }
+  }, [isLoggedIn, navigate]);
+
+  if (isLoggedIn === null) {
+    return (
+      <div>
+        <img
+          src="/landingBg.jpg"
+          alt="Background"
+          className="absolute inset-0 w-full h-full object-cover brightness-18 pointer-events-none z-1"
+        />
+        <p className="pt-40 text-4xl bold">Loading...</p>
+      </div>
+    );
+  }
+
+  return isLoggedIn ? <Outlet /> : <Navigate to="/" replace />;
+};
+
 export default ProtectedRoute;

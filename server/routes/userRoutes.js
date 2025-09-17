@@ -234,15 +234,6 @@ router.get("/me", authMiddleware, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-router.delete("/me", async (req, res) => {
-  try {
-    const deletedUser = await User.findByIdAndDelete(req.user.id);
-    if (!deletedUser) return res.status(404).json({ error: "User not found" });
-    res.json({ message: "User deleted successfully" });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-})
 router.post("/contact", async (req, res) => {
   try {
     const email = validator.normalizeEmail(req.body.email?.trim());
@@ -266,7 +257,7 @@ router.post("/contact", async (req, res) => {
     });
   }
 })
-router.post("/goals", authMiddleware, async (req, res) => {
+router.post("/add-goal", authMiddleware, async (req, res) => {
   try {
     const { goalTitle, category, frequency, deadline, milestones } = req.body;
     if (!goalTitle || !category) return res.status(400).json({ error: "Missing required fields!" });
@@ -289,6 +280,14 @@ router.post("/goals", authMiddleware, async (req, res) => {
     res.status(500).json({ success: false, error: err.message });
   }
 })
+router.delete("/delete-goal/:id", authMiddleware, async (req, res) => {
+  try {
+    await Goal.findByIdAndDelete(req.params.id);
+    res.status(200).json({ success: true, message: "Activity deleted" });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err });
+  }
+})
 router.get("/user-goal-check", authMiddleware, async (req, res) => {
   try {
     const goals = await Goal.find({ user: req.user.id });
@@ -296,11 +295,14 @@ router.get("/user-goal-check", authMiddleware, async (req, res) => {
     res.json({
       success: true,
       goals: goals.map(g => ({
+        _id: g._id,
         title: g.title,
         milestones: g.milestones || [],
         category: g.category,
         frequency: g.frequency,
-        progress: g.progress
+        deadline: g.deadline,
+        progress: g.progress,
+        completed: g.completed
       }))
     });
   } catch (err) {

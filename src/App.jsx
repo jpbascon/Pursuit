@@ -8,54 +8,73 @@ import ForgotPassword from './pages/ForgotPassword';
 import LandingPage from './pages/LandingPage';
 import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
-import Sidebar from './pages/Sidebar';
+import Goals from './pages/Goals';
 import ProtectedRoute from './components/ProtectedRoute';
 import OTP from './pages/OTP';
 import ResetPassword from './pages/ResetPassword';
 import EmailVerification from './pages/EmailVerification';
+import AppLayout from './context/AppLayout';
 import { getProfile } from './api';
 import { Analytics } from "@vercel/analytics/react"
-import { Routes, Route, useNavigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { useAlert } from './context/Alert';
-import GoalOverlay from './pages/GoalOverlay';
 
 function App() {
-  const { alert, alertMessage, hideAlert, showAlert } = useAlert();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const { alert, alertMessage, hideAlert } = useAlert();
+  const [isLoggedIn, setIsLoggedIn] = useState(null);
   const [createGoal, setCreateGoal] = useState(false);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
         await getProfile();
         setIsLoggedIn(true);
-        navigate("/dashboard");
       } catch (err) {
         setIsLoggedIn(false);
       }
     }
     checkAuth();
   }, [])
+
   return (
     <>
       <div className="flex flex-col min-h-screen relative w-full">
         <Navbar isLoggedIn={isLoggedIn} setIsLoggedIn={setIsLoggedIn} createGoal={createGoal} setCreateGoal={setCreateGoal} />
         <div className="flex-grow">
           <Routes>
-            <Route path="/" element={<LandingPage />}></Route>
+            <Route
+              path="/"
+              element={
+                isLoggedIn === null
+                  ? null // or a loading spinner
+                  : isLoggedIn
+                    ? <Navigate to="/dashboard" replace />
+                    : <LandingPage />
+              }
+            />
             <Route path="/about" element={<About />}></Route>
             <Route path="/login" element={<Login setIsLoggedIn={setIsLoggedIn} />}></Route>
             <Route path="/signup" element={<Signup />}></Route>
             <Route path="/contact" element={<Contact />}></Route>
             <Route path="/profile" element={<Profile />}></Route>
-            <Route path="/dashboard"
-              element={
-                <ProtectedRoute>
-                  <Sidebar setIsLoggedIn={setIsLoggedIn} createGoal={createGoal} />
-                  <Dashboard setIsLoggedIn={setIsLoggedIn} createGoal={createGoal} setCreateGoal={setCreateGoal} />
-                </ProtectedRoute>}>
+            <Route element={<ProtectedRoute isLoggedIn={isLoggedIn} />}>
+              <Route
+                element={
+                  <AppLayout
+                    setIsLoggedIn={setIsLoggedIn}
+                    createGoal={createGoal}
+                    setCreateGoal={setCreateGoal}
+                  />}>
+                <Route
+                  path="/dashboard"
+                  element={<Dashboard createGoal={createGoal} setCreateGoal={setCreateGoal} />}
+                />
+                <Route
+                  path="/goals"
+                  element={<Goals createGoal={createGoal} setCreateGoal={setCreateGoal} />}
+                />
+              </Route>
             </Route>
             <Route path="/forgot-password" element={<ForgotPassword />}></Route>
             <Route path="/otp" element={<OTP />}></Route>

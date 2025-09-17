@@ -1,23 +1,14 @@
 import { useAlert } from "../context/Alert";
-import { goals } from "../api";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
+import { addGoal } from "../api";
+import { useState, useEffect } from "react";
 
-const GoalOverlay = (
-  { createGoal,
-    setCreateGoal,
-    goalTitle,
-    setGoalTitle,
-    category,
-    setCategory,
-    frequency,
-    setFrequency,
-    inputs,
-    setInputs,
-    startDate,
-    setStartDate,
-    refreshGoals }) => {
+const GoalOverlay = ({ createGoal, setCreateGoal }) => {
   const { showAlert } = useAlert();
+  const [inputs, setInputs] = useState([{ id: Date.now(), value: "" }]);
+  const [frequency, setFrequency] = useState("");
+  const [category, setCategory] = useState("");
+  const [goalTitle, setGoalTitle] = useState("");
+  const [deadline, setDeadline] = useState(new Date());
   const addMilestone = (id, newValue) => {
     setInputs((prev) =>
       prev.map((input) =>
@@ -29,11 +20,8 @@ const GoalOverlay = (
   }
   const addInput = () => {
     setInputs((prev) => {
-      // get the last input
       const lastInput = prev[prev.length - 1];
-      // if last input is blank, do nothing
       if (!lastInput.value.trim()) { showAlert("Fields are required"); return prev; } // no new input added
-      // otherwise, lock the last one and add new
       const updated = prev.map((input, index) =>
         index === prev.length - 1 ? { ...input, locked: true } : input
       );
@@ -49,26 +37,30 @@ const GoalOverlay = (
       goalTitle,
       category,
       frequency,
-      deadline: startDate,
+      deadline,
       milestones: inputs
         .map((input) => input.value.trim())
-        .filter((val) => val.length > 0), // remove blanks
+        .filter((val) => val.length > 0),
     }
     try {
-      const res = await goals(payload);
-      await refreshGoals();
+      const res = await addGoal(payload);
       showAlert(res.data.message);
       setCreateGoal(false);
     } catch (err) {
-      showAlert(err.response?.data?.error ||
-        err.message ||
-        "Something went wrong"
-      );
+      showAlert(err.response?.data?.error || err.message || "Something went wrong");
     }
   }
+  useEffect(() => {
+    if (!createGoal) {
+      setInputs([{ id: Date.now(), value: "", locked: false }]);
+      setCategory("");
+      setFrequency("");
+      setGoalTitle("");
+    }
+  }, [createGoal]);
   return (
     <>
-      <div className={`absolute top-[20%] left-1/2 -translate-x-1/2 transition-opacity duration-200 z-20 ${createGoal ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+      <div className={`absolute top-[20%] left-1/2 -translate-x-1/2 transition-opacity duration-200 z-100 ${createGoal ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
         <div className="max-w-md px-6 py-4 bg-neutral-950 border-1 border-[#333843] rounded-xl">
           <div className="flex flex-col gap-10">
             <div className="flex flex-col gap-2">
@@ -120,8 +112,8 @@ const GoalOverlay = (
                     <p className="outfit-font text-end font-medium w-25">Deadline</p>
                     <input
                       type="date"
-                      seleted={startDate}
-                      onChange={(e) => setStartDate(e.target.value)}
+                      seleted={deadline}
+                      onChange={(e) => setDeadline(e.target.value)}
                       className="flex-1 border-1 border-[#333843] outline-none px-3 py-[6px] rounded text-sm text-neutral-400 outfit-font"
                     />
                   </div>
@@ -142,7 +134,7 @@ const GoalOverlay = (
                               <button
                                 type="button"
                                 onClick={addInput}
-                                className="flex justify-center items-center gap-1 py-[4px] font-bold outfit-font rounded-xs border-[#333843] border-1 hover:bg-white hover:border-white hover:text-black transition-all duration-250">
+                                className="flex justify-center items-center gap-1 py-[6px] font-bold montserrat-font text-sm rounded-xs border-[#333843] border-1 hover:bg-white hover:border-white hover:text-black transition-all duration-250">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24">
                                   <g fill="none" stroke="currentColor" strokeWidth="2">
                                     <path strokeLinecap="round" d="M12 8v4m0 0v4m0-4h4m-4 0H8" />
