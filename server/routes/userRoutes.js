@@ -259,7 +259,9 @@ router.post("/contact", async (req, res) => {
 })
 router.post("/add-goal", authMiddleware, async (req, res) => {
   try {
-    const { goalTitle, category, frequency, deadline, milestones } = req.body;
+    const goalTitle = req.body.goalTitle?.trim();
+    const milestones = req.body.milestones
+    const { category, frequency, deadline } = req.body;
     if (!goalTitle || !category) return res.status(400).json({ error: "Missing required fields!" });
     const user = await User.findById(req.user.id).select("-password");
     if (!user) return res.status(400).json({ error: "User not found" });
@@ -307,6 +309,21 @@ router.get("/user-goal-check", authMiddleware, async (req, res) => {
     });
   } catch (err) {
     res.json({ success: false, error: err.message });
+  }
+})
+router.put("/update-milestone", authMiddleware, async (req, res) => {
+  try {
+    const { id, idx } = req.body;
+    const path = `milestones.${idx}.completed`;
+    const goal = await Goal.findByIdAndUpdate(
+      id,
+      { $set: { [path]: true } },
+      { new: true },
+    )
+    if (!goal) return res.status(404).json({ success: false, message: "Goal not found" });
+    res.status(200).json({ success: true, message: "Milestone upodated" });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err });
   }
 })
 export default router;

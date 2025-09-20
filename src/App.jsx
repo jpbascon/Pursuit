@@ -47,7 +47,7 @@ function App() {
               path="/"
               element={
                 isLoggedIn === null
-                  ? null // or a loading spinner
+                  ? null
                   : isLoggedIn
                     ? <Navigate to="/dashboard" replace />
                     : <LandingPage />

@@ -5,12 +5,10 @@ import { NavLink } from "react-router-dom";
 
 export default function Dashboard({ createGoal, setCreateGoal }) {
   const { goals, refreshGoals } = useGoal();
-  const capitalize = (word) => {
-    if (!word) return "";
-    return word.charAt(0).toUpperCase() + word.slice(1);
-  }
   useEffect(() => {
     refreshGoals();
+    const prev = goals;
+    prev.map((a) => console.log(a));
   }, [createGoal]);
   return (
     <>
@@ -35,7 +33,7 @@ export default function Dashboard({ createGoal, setCreateGoal }) {
                             <div className="flex items-center justify-between">
                               <div className="flex items-end gap-4">
                                 <h2>{getCategoryIcon(goal.category)}</h2>
-                                <p className="font-bold text-xl noto-font">{capitalize(goal.category)}</p>
+                                <p className="font-bold text-xl noto-font">{goal.category}</p>
                               </div>
                               <div className="rounded-2xl border-1 border-neutral-600 content-center size-fit">
                                 <p className="text-neutral-400 noto-font text-xs px-[6px] py-[1px]">0%</p>

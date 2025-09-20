@@ -2,6 +2,7 @@ import { useGoal } from "../hooks/useGoals.jsx";
 import { useDeleteGoal } from "../hooks/useDeleteGoal.js"
 import { useState, useEffect } from "react";
 import { useAlert } from "../context/Alert.jsx";
+import { updateMilestone } from "../api.js";
 import { ChevronUp, ChevronDown, Check, Trash2, Edit, Ban } from "lucide-react";
 
 
@@ -14,18 +15,25 @@ export default function Goals({ createGoal, setCreateGoal }) {
   const [expandedGoalId, setExpandedGoalId] = useState(null);
   const { goals, refreshGoals } = useGoal();
   const handleEdit = (data) => { setEditing({ ...data }) };
-  const deleteGoal = async (id) => {
-    try {
-      const res = await handleDelete(id);
-      showAlert(res.data.message);
-    } catch (err) {
-      showAlert(err.data.error?.response || "Something went wrong");
-    }
-  }
   const toggleCheck = (key) => {
     setCheckedMilestones((prev) =>
       prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key]
     )
+  }
+  const handleSave = async (goalId) => {
+    const milestonesToUpdate = checkedMilestones
+      .filter((id) => id.startsWith(goalId))
+      .map((id) => {
+        const [gId, idx] = id.split("-");
+        return { goalId: gId, index: Number(idx) }
+      })
+    try {
+      for (const m of milestonesToUpdate) {
+        await updateMilestone(m.goalId, m.index);
+      }
+    } catch (err) {
+      showAlert(err.data.error?.response || "Something went wrong");
+    }
   }
   useEffect(() => {
     refreshGoals();
@@ -76,12 +84,11 @@ export default function Goals({ createGoal, setCreateGoal }) {
                             </div>
                             <div className="gap-8 flex items-center">
                               <div className="gap-2 flex flex-col justify-center w-50">
-                                <div className="text-neutral-400 flex items-center justify-between">
-                                  <h2 className="noto-font text-sm">Progress</h2>
+                                <div className="flex items-center justify-between">
+                                  <p className="outfit-font text-xs font-medium bg-[#552b55] size-fit px-[6px] py-[2px] rounded-2xl">{data.completed === false ? "In Progress" : "Completed"}</p>
                                   <p className="noto-font text-sm px-[8px] py-[1px]">0%</p>
                                 </div>
                                 <div className="border-3 border-[#e8e6e3] rounded-2xl"></div>
-                                <p className="outfit-font text-xs font-medium bg-[#552b55] size-fit px-[6px] py-[2px] rounded-2xl">{data.completed === false ? "In Progress" : "Completed"}</p>
                               </div>
                               <div className="flex items-center gap-4">
                                 <div className="p-2 hover:bg-neutral-800 hover:cursor-pointer rounded-md transition-bg duration-200"
@@ -100,7 +107,7 @@ export default function Goals({ createGoal, setCreateGoal }) {
                                 <h2 className="text-md montserrat-font font-semibold">Your Milestones <span>0/{data.milestones.length}</span></h2>
                                 <div className={`gap-4 flex items-center ${editing?._id === data._id ? "opacity-100" : "opacity-0"}`}>
                                   <div className="p-2 hover:bg-neutral-800 hover:cursor-pointer rounded-md transition-bg duration-200"
-                                    onClick={() => deleteGoal(data._id)}>
+                                    onClick={() => handleDelete(data._id)}>
                                     <Trash2 width={18} height={18} />
                                   </div>
                                   <div className="p-2 hover:bg-neutral-800 hover:cursor-pointer rounded-md transition-bg duration-200"
@@ -123,12 +130,15 @@ export default function Goals({ createGoal, setCreateGoal }) {
                                       <Check strokeWidth={2} width={18} height={18} color={`${checkedMilestones.includes(`${data._id}-${key}`) ? "#fff" : "transparent"}`} />
                                     </button>
                                     <p className="outfit-font text-md hover:cursor-pointer"
-                                      onClick={() => toggleCheck(`${data._id}-${key}`)}>{milestone}</p>
+                                      onClick={() => toggleCheck(`${data._id}-${key}`)}>{milestone.text}</p>
                                   </div>
                                 )))}
                             </div>
                             <div className="flex justify-end">
-                              <button className={`py-[8px] px-[14px] outfit-font rounded-md bg-emerald-700  text-sm hover:brightness-85 transition-all duration-100 ${checkedMilestones.some((id) => id.startsWith(data._id)) ? "brightness-100" : "brightness-70 pointer-events-none"}`}>Save</button>
+                              <button className={`py-[8px] px-[14px] outfit-font rounded-md bg-[#552b55]  text-sm hover:brightness-85 transition-all duration-100
+                              ${checkedMilestones.some((id) => id.startsWith(data._id)) ? "brightness-100" : "brightness-70 pointer-events-none"}`}
+                                onClick={() => handleSave(data._id)}
+                              >Save</button>
                             </div>
                           </div>
                         </div>

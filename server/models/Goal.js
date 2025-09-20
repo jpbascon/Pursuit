@@ -14,7 +14,7 @@ const goalSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ["health & fitness", "career development", "personal growth"],
+      enum: ["Health & Fitness", "Career Development", "Personal Growth", "Financial Goals", "Relationships", "Community Service"],
       required: true
     },
     frequency: {
@@ -28,8 +28,14 @@ const goalSchema = new mongoose.Schema(
     },
     milestones: [
       {
-        type: String,
-        trim: true
+        text: {
+          type: String,
+          trim: true
+        },
+        completed: {
+          type: Boolean,
+          default: false
+        }
       }
     ],
     progress: {

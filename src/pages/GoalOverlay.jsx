@@ -39,8 +39,8 @@ const GoalOverlay = ({ createGoal, setCreateGoal }) => {
       frequency,
       deadline,
       milestones: inputs
-        .map((input) => input.value.trim())
-        .filter((val) => val.length > 0),
+        .map((input) => ({ text: input.value.trim() }))
+        .filter((m) => m.text.length > 0),
     }
     try {
       const res = await addGoal(payload);
@@ -92,9 +92,12 @@ const GoalOverlay = ({ createGoal, setCreateGoal }) => {
                       value={category}
                       onChange={(e) => { setCategory(e.target.value) }}>
                       <option value="">Select</option>
-                      <option value="health &amp; fitness">Health & Fitness</option>
-                      <option value="career development">Career Development</option>
-                      <option value="personal growth">Personal Growth</option>
+                      <option value="Health &amp; Fitness">Health & Fitness</option>
+                      <option value="Career Development">Career Development</option>
+                      <option value="Personal Growth">Personal Growth</option>
+                      <option value="Financial Goals">Financial Goals</option>
+                      <option value="Relationships">Relationships</option>
+                      <option value="Community Service">Community Service</option>
                     </select>
                   </div>
                   <div className="flex items-center gap-3">

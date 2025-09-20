@@ -19,4 +19,5 @@ export const resetPassword = (password, passwordConfirm) => api.put("a/reset-pas
 export const addGoal = (data) => api.post("a/add-goal", data);
 export const deleteGoal = (id) => api.delete(`a/delete-goal/${id}`);
 export const userGoalCheck = () => api.get("a/user-goal-check");
+export const updateMilestone = (id, idx) => api.put("a/update-milestone", id, idx);
 export default api;
