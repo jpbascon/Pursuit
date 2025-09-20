@@ -1,6 +1,7 @@
 import { useGoal } from "../hooks/useGoals.jsx";
 import { getCategoryIcon } from "../hooks/getCategoryIcon";
 import { useEffect } from "react";
+import { NavLink } from "react-router-dom";
 
 export default function Dashboard({ createGoal, setCreateGoal }) {
   const { goals, refreshGoals } = useGoal();
@@ -44,9 +45,10 @@ export default function Dashboard({ createGoal, setCreateGoal }) {
                               <div className="flex-1 border-3 border-[#e8e6e3] rounded-2xl"></div>
                               <p className="text-sm text-neutral-500">{goal.title}</p>
                             </div>
-                            <button key={idx}
-                              className="w-full bg-neutral-950 rounded-sm text-sm py-3 roboto-font font-bold hover:bg-black transition-bg duration-200"
-                            >View Details</button>
+                            <NavLink to="/goals" key={idx}>
+                              <button className="w-full bg-neutral-950 rounded-sm text-sm py-3 roboto-font font-bold hover:bg-black transition-bg duration-200">
+                                View more</button>
+                            </NavLink>
                           </div>
                         </div>
                       )

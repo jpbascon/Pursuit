@@ -1,18 +1,13 @@
 import { NavLink } from "react-router-dom"
 import useLogout from "../hooks/useLogout"
-import {
-  LayoutDashboard,
-  SquareActivity,
-  ClipboardList,
-  Settings,
-} from "lucide-react"
+import { CalendarDays, FolderOpenDot, SquareCheckBig, Bolt } from "lucide-react"
 
 export default function Sidebar({ setIsLoggedIn, createGoal }) {
   const { logout } = useLogout(setIsLoggedIn);
   return (
     <>
       <div className={`fixed left-0 top-0 bottom-0 w-[270px] bg-black border-r-1 border-r-[#333843] z-101 ${createGoal && "blur-sm brightness-50 pointer-events-none"}`}>
-        <div className="flex flex-col gap-10 py-2 h-full">
+        <div className="flex flex-col gap-6 py-2 h-full">
           <NavLink to="/dashboard" className="flex justify-center items-center">
             <svg width="200" height="60" viewBox="0 0 200 60" fill="none" xmlns="http://www.w3.org/2000/svg">
               <text x="50%" y="50%" dominantBaseline="central" textAnchor="middle" fill="#e8e6e3" fontSize="42" fontWeight="bold" fontStyle="italic" fontFamily="system-ui, -apple-system, sans-serif" letterSpacing="-0.02em">Pursuit</text>
@@ -22,22 +17,22 @@ export default function Sidebar({ setIsLoggedIn, createGoal }) {
             <div className="gap-[4px] px-2 flex-1 flex flex-col items-stretch">
               <NavLink to="/dashboard"
                 className={({ isActive }) => "flex items-center gap-3 py-[8px] px-[6px] rounded-lg hover:bg-[#262a33] transition-bg duration-200" + (isActive ? " bg-[#262a33]" : "")}>
-                <LayoutDashboard />
+                <CalendarDays width={22} height={22} />
                 <p className="noto-font font-medium relative text-sm montserrat-font">Dashboard</p>
               </NavLink>
               <NavLink to="/goals"
                 className={({ isActive }) => "flex items-center gap-3 py-[8px] px-[6px] rounded-lg hover:bg-[#262a33] transition-bg duration-200" + (isActive ? " bg-[#262a33]" : "")}>
-                <SquareActivity />
-                <p className="noto-font font-medium relative text-sm montserrat-font">Activity</p>
+                <FolderOpenDot width={22} height={22} />
+                <p className="noto-font font-medium relative text-sm montserrat-font">Projects</p>
               </NavLink>
               <NavLink to="/tasks"
                 className={({ isActive }) => "flex items-center gap-3 py-[8px] px-[6px] rounded-lg hover:bg-[#262a33] transition-bg duration-200" + (isActive ? " bg-[#262a33]" : "")}>
-                <ClipboardList />
+                <SquareCheckBig width={22} height={22} />
                 <p className="noto-font font-medium relative text-sm montserrat-font">Tasks</p>
               </NavLink>
               <NavLink to="/settings"
                 className={({ isActive }) => "flex items-center gap-3 py-[8px] px-[6px] rounded-lg hover:bg-[#262a33] transition-bg duration-200" + (isActive ? " bg-[#262a33]" : "")}>
-                <Settings />
+                <Bolt width={22} height={22} />
                 <p className="noto-font font-medium relative text-sm montserrat-font">Settings</p>
               </NavLink>
             </div>
