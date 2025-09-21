@@ -24,6 +24,7 @@ function App() {
   const { alert, alertMessage, hideAlert } = useAlert();
   const [isLoggedIn, setIsLoggedIn] = useState(null);
   const [createGoal, setCreateGoal] = useState(false);
+  const [expandedGoalId, setExpandedGoalId] = useState(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -68,11 +69,18 @@ function App() {
                   />}>
                 <Route
                   path="/dashboard"
-                  element={<Dashboard createGoal={createGoal} setCreateGoal={setCreateGoal} />}
+                  element={<Dashboard
+                    createGoal={createGoal}
+                    setCreateGoal={setCreateGoal}
+                    setExpandedGoalId={setExpandedGoalId} />}
                 />
                 <Route
                   path="/goals"
-                  element={<Goals createGoal={createGoal} setCreateGoal={setCreateGoal} />}
+                  element={<Goals
+                    createGoal={createGoal}
+                    setCreateGoal={setCreateGoal}
+                    expandedGoalId={expandedGoalId}
+                    setExpandedGoalId={setExpandedGoalId} />}
                 />
               </Route>
             </Route>

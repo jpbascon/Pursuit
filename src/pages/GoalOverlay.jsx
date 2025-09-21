@@ -9,6 +9,10 @@ const GoalOverlay = ({ createGoal, setCreateGoal }) => {
   const [category, setCategory] = useState("");
   const [goalTitle, setGoalTitle] = useState("");
   const [deadline, setDeadline] = useState(new Date());
+  const today = new Date();
+  const minDeadline = new Date(today);
+  minDeadline.setDate(minDeadline.getDate() + 3);
+  const minDate = minDeadline.toISOString().split("T")[0];
   const addMilestone = (id, newValue) => {
     setInputs((prev) =>
       prev.map((input) =>
@@ -60,7 +64,7 @@ const GoalOverlay = ({ createGoal, setCreateGoal }) => {
   }, [createGoal]);
   return (
     <>
-      <div className={`absolute top-[20%] left-1/2 -translate-x-1/2 transition-opacity duration-200 z-100 ${createGoal ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+      <div className={`fixed top-[20%] left-1/2 -translate-x-1/2 transition-opacity duration-200 z-100 ${createGoal ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
         <div className="max-w-md px-6 py-4 bg-neutral-950 border-1 border-[#333843] rounded-xl">
           <div className="flex flex-col gap-10">
             <div className="flex flex-col gap-2">
@@ -115,6 +119,7 @@ const GoalOverlay = ({ createGoal, setCreateGoal }) => {
                     <p className="outfit-font text-end font-medium w-25">Deadline</p>
                     <input
                       type="date"
+                      min={minDate}
                       seleted={deadline}
                       onChange={(e) => setDeadline(e.target.value)}
                       className="flex-1 border-1 border-[#333843] outline-none px-3 py-[6px] rounded text-sm text-neutral-400 outfit-font"

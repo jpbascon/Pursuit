@@ -1,19 +1,21 @@
-import { useGoal } from "../hooks/useGoals.jsx";
+import { useGoal } from "../context/useGoals.jsx";
 import { useDeleteGoal } from "../hooks/useDeleteGoal.js"
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAlert } from "../context/Alert.jsx";
 import { updateMilestone } from "../api.js";
 import { ChevronUp, ChevronDown, Check, Trash2, Edit, Ban } from "lucide-react";
 
 
-export default function Goals({ createGoal, setCreateGoal }) {
+export default function Goals({ createGoal, setCreateGoal, expandedGoalId, setExpandedGoalId }) {
   const capitalize = (word) => (word.charAt(0).toUpperCase() + word.slice(1));
   const { handleDelete } = useDeleteGoal();
   const { showAlert } = useAlert();
+  const goalRefs = useRef({});
+  const { goals, refreshGoals } = useGoal();
   const [editing, setEditing] = useState(null);
   const [checkedMilestones, setCheckedMilestones] = useState([]);
-  const [expandedGoalId, setExpandedGoalId] = useState(null);
-  const { goals, refreshGoals } = useGoal();
+  const [milestoneCompleted, setMilestoneCompleted] = useState(false);
+  const goalsWithCompleted = goals.reduce((total, goal) => total + goal.milestones?.filter(m => m.completed).length, 0);
   const handleEdit = (data) => { setEditing({ ...data }) };
   const toggleCheck = (key) => {
     setCheckedMilestones((prev) =>
@@ -28,16 +30,19 @@ export default function Goals({ createGoal, setCreateGoal }) {
         return { goalId: gId, index: Number(idx) }
       })
     try {
-      for (const m of milestonesToUpdate) {
-        await updateMilestone(m.goalId, m.index);
-      }
+      const res = await Promise.all(
+        milestonesToUpdate.map((m) => updateMilestone(m.goalId, m.index))
+      );
+      await refreshGoals();
+      showAlert(res.data.message);
     } catch (err) {
       showAlert(err.data.error?.response || "Something went wrong");
     }
   }
   useEffect(() => {
     refreshGoals();
-  }, [createGoal]);
+    setTimeout(() => { setMilestoneCompleted(false) }, 50)
+  }, [createGoal, milestoneCompleted]);
   return (
     <>
       <div className="min-h-screen relative">
@@ -61,7 +66,7 @@ export default function Goals({ createGoal, setCreateGoal }) {
                         <div className="flex justify-between items-center">
                           <p className="montserrat-font text-neutral-400 text-sm font-medium">Milestones Completed</p>
                         </div>
-                        <h2 className="montserrat-font font-bold text-2xl">{goals.filter((goal) => goal.completed === true).length}</h2>
+                        <h2 className="montserrat-font font-bold text-2xl">{goalsWithCompleted}</h2>
                       </div>
                       <div className="p-5 bg-[#121212] border-[#333843] border-[2px] rounded-xl flex-1 flex flex-col gap-4">
                         <div className="flex justify-between items-center">
@@ -74,7 +79,10 @@ export default function Goals({ createGoal, setCreateGoal }) {
                   <h2 className="text-2xl font-bold montserrat-font">Your Goals</h2>
                   <div className="gap-4 flex flex-col">
                     {goals.map((data, idx) => (
-                      <div key={idx} className="border-[#333843] border-[2px] bg-[#121212] rounded-xl">
+                      <div className="goal-card border-[#333843] border-[2px] bg-[#121212] rounded-xl"
+                        key={idx}
+                        id={`goal-${data._id}`}
+                        ref={(el) => (goalRefs.current[data._id] = el)}>
                         <div className={`p-5 flex flex-col transition-gap duration-300 ${expandedGoalId === data._id ? "gap-6" : "gap-0"}`}>
                           <div className="flex justify-between items-center">
                             <div className="gap-2 flex flex-col">
@@ -85,10 +93,17 @@ export default function Goals({ createGoal, setCreateGoal }) {
                             <div className="gap-8 flex items-center">
                               <div className="gap-2 flex flex-col justify-center w-50">
                                 <div className="flex items-center justify-between">
-                                  <p className="outfit-font text-xs font-medium bg-[#552b55] size-fit px-[6px] py-[2px] rounded-2xl">{data.completed === false ? "In Progress" : "Completed"}</p>
-                                  <p className="noto-font text-sm px-[8px] py-[1px]">0%</p>
+                                  <p className={`outfit-font text-xs font-medium size-fit px-[6px] py-[2px] rounded-2xl ${data.completed ? "bg-[#333843]" : "bg-[#552b55]"}`}>{!data.completed ? "In Progress" : "Completed"}</p>
+                                  <p className="noto-font text-sm">
+                                    {((data.milestones.filter((m) => m.completed).length / data.milestones.length) * 100).toFixed(0)}%
+                                  </p>
                                 </div>
-                                <div className="border-3 border-[#e8e6e3] rounded-2xl"></div>
+                                <div className="w-full h-2 bg-gray-300 rounded-full overflow-hidden">
+                                  <div
+                                    className={`montserrat-font h-full bg-[#552b55] transition-width duration-300 ${data.completed ? "bg-[#333843]" : "bg-[#552b55]"}`}
+                                    style={{ width: `${(data.milestones.filter((m) => m.completed).length / data.milestones.length) * 100}%` }}
+                                  />
+                                </div>
                               </div>
                               <div className="flex items-center gap-4">
                                 <div className="p-2 hover:bg-neutral-800 hover:cursor-pointer rounded-md transition-bg duration-200"
@@ -101,10 +116,10 @@ export default function Goals({ createGoal, setCreateGoal }) {
                               </div>
                             </div>
                           </div>
-                          <div className={`transition-all duration-300 overflow-hidden ${expandedGoalId === data._id ? "max-h-[1000px] opacity-100" : "max-h-0 opacity-0"}`}>
+                          <div className={`transition-all duration-300 overflow-hidden ${expandedGoalId === data._id ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"}`}>
                             <div className="flex flex-col gap-4">
                               <div className="flex justify-between items-center">
-                                <h2 className="text-md montserrat-font font-semibold">Your Milestones <span>0/{data.milestones.length}</span></h2>
+                                <h2 className="text-md montserrat-font font-semibold">Your Milestones <span>{data.milestones.filter((m) => m.completed === true).length}/{data.milestones.length}</span></h2>
                                 <div className={`gap-4 flex items-center ${editing?._id === data._id ? "opacity-100" : "opacity-0"}`}>
                                   <div className="p-2 hover:bg-neutral-800 hover:cursor-pointer rounded-md transition-bg duration-200"
                                     onClick={() => handleDelete(data._id)}>
@@ -125,11 +140,13 @@ export default function Goals({ createGoal, setCreateGoal }) {
                                 data.milestones.map((milestone, key) => (
                                   <div key={key} className="flex gap-4 items-center">
                                     <button
-                                      className={`p-[1px] rounded-xs transition-bg duration-100 ${checkedMilestones.includes(`${data._id}-${key}`) ? "bg-[#552b55]" : "bg-neutral-800"}`}
+                                      className={`p-[1px] rounded-xs transition-bg duration-100 ${milestone.completed || checkedMilestones.includes(`${data._id}-${key}`) ? "bg-[#552b55]" : "bg-neutral-800"}
+                                      ${milestone.completed === true && "brightness-70 pointer-events-none"}`}
                                       onClick={() => toggleCheck(`${data._id}-${key}`)}>
-                                      <Check strokeWidth={2} width={18} height={18} color={`${checkedMilestones.includes(`${data._id}-${key}`) ? "#fff" : "transparent"}`} />
+                                      <Check strokeWidth={2} width={18} height={18} color={`${milestone.completed || checkedMilestones.includes(`${data._id}-${key}`) ? "#fff" : "transparent"}`} />
                                     </button>
-                                    <p className="outfit-font text-md hover:cursor-pointer"
+                                    <p className={`outfit-font text-md hover:cursor-pointer
+                                    ${milestone.completed === true && "brightness-70 pointer-events-none"}`}
                                       onClick={() => toggleCheck(`${data._id}-${key}`)}>{milestone.text}</p>
                                   </div>
                                 )))}
@@ -137,7 +154,7 @@ export default function Goals({ createGoal, setCreateGoal }) {
                             <div className="flex justify-end">
                               <button className={`py-[8px] px-[14px] outfit-font rounded-md bg-[#552b55]  text-sm hover:brightness-85 transition-all duration-100
                               ${checkedMilestones.some((id) => id.startsWith(data._id)) ? "brightness-100" : "brightness-70 pointer-events-none"}`}
-                                onClick={() => handleSave(data._id)}
+                                onClick={() => { handleSave(data._id); setMilestoneCompleted(true) }}
                               >Save</button>
                             </div>
                           </div>

@@ -1,6 +1,6 @@
 import { deleteGoal } from "../api";
 import { useAlert } from "../context/Alert";
-import { useGoal } from "./useGoals";
+import { useGoal } from "../context/useGoals";
 
 export function useDeleteGoal() {
   const { refreshGoals } = useGoal();

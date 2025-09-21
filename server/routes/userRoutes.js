@@ -303,7 +303,6 @@ router.get("/user-goal-check", authMiddleware, async (req, res) => {
         category: g.category,
         frequency: g.frequency,
         deadline: g.deadline,
-        progress: g.progress,
         completed: g.completed
       }))
     });
@@ -311,6 +310,29 @@ router.get("/user-goal-check", authMiddleware, async (req, res) => {
     res.json({ success: false, error: err.message });
   }
 })
+router.get("/user-stats", authMiddleware, async (req, res) => {
+  try {
+    const goals = await Goal.find({ user: req.user.id });
+    if (!goals || goals.length === 0) {
+      return res.status(400).json({ success: false, error: "No goals found" });
+    }
+
+    const stats = goals.map(g => ({
+      name: g.title,
+      category: g.category,
+      completed: g.milestones.filter(m => m.completed).length,
+      total: g.milestones.length,
+      milestones: g.milestones.map(m => ({
+        text: m.text,
+        completed: m.completed
+      }))
+    }));
+
+    res.json({ success: true, stats });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 router.put("/update-milestone", authMiddleware, async (req, res) => {
   try {
     const { id, idx } = req.body;
@@ -321,7 +343,13 @@ router.put("/update-milestone", authMiddleware, async (req, res) => {
       { new: true },
     )
     if (!goal) return res.status(404).json({ success: false, message: "Goal not found" });
-    res.status(200).json({ success: true, message: "Milestone upodated" });
+
+    const allCompleted = goal.milestones.every(m => m.completed === true);
+    if (allCompleted && !goal.completed) {
+      goal.completed = true;
+      await goal.save();
+    }
+    res.status(200).json({ success: true, message: "Milestone updated" });
   } catch (err) {
     res.status(500).json({ success: false, error: err });
   }
